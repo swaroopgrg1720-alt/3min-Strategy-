@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" role="img" aria-label="3MIN SCALP">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#00B77A"/>
+      <stop offset="1" stop-color="#00E59B"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#080D12"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#123D32" stroke-width="2"/>
+  <path d="M32 11 A21 21 0 0 1 53 32" fill="none" stroke="#123D32" stroke-width="3" stroke-linecap="round"/>
+  <path d="M13 40 L24 30 L31 36 L40 22 L51 17" fill="none" stroke="url(#g)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="51" cy="17" r="3.6" fill="#00E59B"/>
+  <text x="78" y="29" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="700" letter-spacing="2" fill="#080D12">3MIN</text>
+  <text x="78" y="52" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#0A7A57">SCALP</text>
+</svg>

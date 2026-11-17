@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #080d12;
+  color: #f5f7fa;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid #00e59b;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-6xl px-5 sm:px-8; }
+  .section { @apply py-16 sm:py-24; }
+  .card {
+    @apply rounded-2xl border border-line bg-bg2/70 p-6 transition duration-300;
+    background-image: linear-gradient(180deg, rgba(0,229,155,0.04), transparent 60%);
+  }
+  .card-hover:hover { @apply -translate-y-0.5 border-accent/40 shadow-glow; }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition duration-200 active:scale-[0.98];
+  }
+  .btn-primary { @apply bg-accent text-bg hover:shadow-glow hover:brightness-110; }
+  .btn-ghost { @apply border border-line text-ink hover:border-accent/50 hover:bg-forest/30; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.2em] text-accent; }
+  .prose-legal h2 { @apply mt-10 text-xl font-semibold text-ink; }
+  .prose-legal p, .prose-legal li { @apply mt-3 leading-relaxed text-muted; }
+  .prose-legal ul { @apply list-disc pl-6; }
+  .gradient-text {
+    background: linear-gradient(90deg, #f5f7fa, #00e59b, #f5f7fa);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+[data-reveal] { animation: fade-up 0.6s ease-out both; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.draw-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.2s ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .draw-line { stroke-dashoffset: 0; }
+}

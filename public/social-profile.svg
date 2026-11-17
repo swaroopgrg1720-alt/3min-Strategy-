@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="3MIN SCALP social profile">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#00B77A"/>
+      <stop offset="1" stop-color="#00E59B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#123D32" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#080D12" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="#080D12"/>
+  <rect width="400" height="400" fill="url(#glow)"/>
+  <g transform="translate(72 52) scale(4.5)">
+    <path d="M32 11 A21 21 0 0 1 53 32" fill="none" stroke="#123D32" stroke-width="3" stroke-linecap="round"/>
+    <path d="M13 40 L24 30 L31 36 L40 22 L51 17" fill="none" stroke="url(#g)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="51" cy="17" r="3.6" fill="#00E59B"/>
+  </g>
+  <text x="200" y="340" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="700" letter-spacing="6" fill="#F5F7FA">3MIN <tspan fill="#00E59B">SCALP</tspan></text>
+</svg>
