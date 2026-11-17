@@ -23,6 +23,8 @@ npm run build && npm start
 | Wallet addresses / networks | `lib/config/payments.ts` (use a payment provider; never put keys in the frontend) |
 | Terms / Privacy bracketed items | `app/terms`, `app/privacy` (have a lawyer review) |
 
+> Backend (Supabase database, login, licenses, admin, secure downloads): see **SETUP.md**.
+
 ## Not connected yet (by design)
 Auth, database, payment provider + webhook, email, secure download, support tickets, and the admin panel are
 architecture only. Dashboard/admin pages show empty states, not fake data. Stubs: `app/api/*`, `lib/payments`,

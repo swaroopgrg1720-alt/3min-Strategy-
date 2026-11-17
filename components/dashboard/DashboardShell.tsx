@@ -11,7 +11,7 @@ export const dashNav = [
   { href: "/dashboard/account", label: "Account" },
 ];
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({ children, email }: { children: React.ReactNode; email?: string }) {
   const path = usePathname();
   return (
     <div className="container-x grid gap-8 py-10 lg:grid-cols-[220px_1fr]">
@@ -27,9 +27,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         })}
       </nav>
       <div>
-        <p role="status" className="mb-6 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-300">
-          Preview layout. No customer data is loaded because authentication and the database are not connected yet.
-        </p>
+        {email && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
+            <span>Signed in as {email}</span>
+            <form action="/auth/signout" method="post"><button className="btn btn-ghost !py-1.5 !text-xs">Sign out</button></form>
+          </div>
+        )}
         {children}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientKey, isValidEmail, rateLimit, sanitizeText } from "@/lib/security";
+import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function POST(req: Request) {
   if (!rateLimit(`contact:${clientKey(req)}`, 5, 60_000)) {
@@ -22,9 +23,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Please complete all fields with a valid email." }, { status: 400 });
   }
 
-  // TODO: send via your email provider (EMAIL_API_KEY) or store as a support ticket.
-  if (!process.env.EMAIL_API_KEY) {
-    return NextResponse.json({ error: "Messaging is not configured yet." }, { status: 503 });
-  }
+  if (!isSupabaseConfigured()) return NextResponse.json({ error: "Messaging is not configured yet." }, { status: 503 });
+  const { error } = await supabaseAdmin().from("support_tickets").insert({ customer_email: email.toLowerCase(), name, subject, message });
+  if (error) return NextResponse.json({ error: "Could not send your message." }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
