@@ -7,7 +7,9 @@ export const metadata: Metadata = { title: "Admin Login", robots: { index: false
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const configured = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.ADMIN_EMAILS);
+  const need = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "ADMIN_EMAILS"];
+  const missing = need.filter((k) => !process.env[k]?.trim());
+  const configured = missing.length === 0;
   if (configured) {
     const user = await getUser();
     if (user && isAdminEmail(user.email)) redirect("/admin");
@@ -20,7 +22,7 @@ export default async function Page() {
           <p className="mt-2 text-sm text-muted">Owner access to licenses, orders and downloads.</p>
           {configured ? <AdminLoginForms /> : (
             <p role="status" className="mt-5 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-300">
-              Not configured. Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY and ADMIN_EMAILS in Vercel, then redeploy.
+              Not configured. Missing in Vercel: {missing.join(", ")}. Add them under Settings → Environment Variables, then redeploy.
             </p>
           )}
         </div>
