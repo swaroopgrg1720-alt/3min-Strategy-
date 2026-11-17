@@ -1,11 +1,22 @@
-const env = (v: string | undefined, fallback: string) => (v && v.trim() ? v : fallback);
+const env = (v: string | undefined, fallback: string) => (v && v.trim() ? v.trim() : fallback);
+
+/** Accepts "mysite.com" or "https://mysite.com/" and never throws on a bad value. */
+function normalizeUrl(v: string | undefined, fallback: string): string {
+  const raw = env(v, fallback);
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    return new URL(withProtocol).origin;
+  } catch {
+    return fallback;
+  }
+}
 
 export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
 export const site = {
   name: "3MIN SCALP",
   version: "1.0.0",
-  url: env(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000"),
+  url: normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000"),
   title: "3MIN SCALP | MT5 Multi-Pair Expert Advisor",
   description:
     "3MIN SCALP is a MetaTrader 5 Expert Advisor designed for automated trading across EURUSD, GBPUSD and XAUUSD. Explore features, pricing and documentation.",

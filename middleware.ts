@@ -5,6 +5,18 @@ type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 /** Refreshes the Supabase session cookie and requires sign-in for /dashboard and /admin. */
 export async function middleware(req: NextRequest) {
+  try {
+    return await run(req);
+  } catch {
+    // Never take the whole site down because of a configuration problem.
+    const p = req.nextUrl.pathname;
+    if (p.startsWith("/admin") && p !== "/admin/login") return NextResponse.redirect(new URL("/admin/login", req.url));
+    if (p.startsWith("/dashboard")) return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.next();
+  }
+}
+
+async function run(req: NextRequest) {
   let res = NextResponse.next({ request: req });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
