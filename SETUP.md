@@ -32,30 +32,16 @@ Redeploy after adding variables.
 - Downloads: login → active license check → 60-second signed URL from the private bucket → logged.
 - Admin: every page and action re-checks `ADMIN_EMAILS` on the server.
 
-## 5. The EA license check: read this
-`/api/license/validate` is ready, but **an EX5 cannot be modified without its MQ5 source.** Today that means:
-- ✅ Access control to the *download* works (only paying customers get the file).
-- ❌ Nothing stops a paying customer sharing the EX5 file, and the EA itself won't check keys.
+## 5. EA keys (offline scheme from your `keygen.py`)
+The site generates keys in exactly the format of your `keygen.py`:
+`<YYYYMMDD expiry>-<first 20 hex of SHA256("SALT|mt5_account|expiry")>`; verified identical to the script.
 
-To enforce licenses and bind an MT5 account, the check must be compiled into the EA by whoever has the source (you, or the developer who wrote it). Ask for a version that calls the endpoint. Reference snippet for them:
+1. In Vercel add `EA_SECRET_SALT` = the **same** salt compiled into your EA (the real one, not the placeholder in `keygen.py`). Never put it in GitHub or chat.
+2. After a license exists (paid order or admin-created), the customer opens **Dashboard → My License**, enters their MT5 account number once, and gets their key. The license then locks to that account.
+3. Lifetime = expiry `20991231`. Monthly = the license expiration date; each renewal (+30 days) changes the expiry, so the customer copies a new key from the dashboard.
+4. To move a customer to another account, press **Unbind account** in `/admin`.
 
-```mql5
-// Terminal: Tools > Options > Expert Advisors > "Allow WebRequest for listed URL" -> https://YOUR-DOMAIN
-bool CheckLicense(const string key)
-{
-   string nonce = IntegerToString((long)TimeLocal()) + IntegerToString(MathRand());
-   string body  = "{\"key\":\"" + key + "\",\"account\":\"" + IntegerToString((long)AccountInfoInteger(ACCOUNT_LOGIN)) +
-                  "\",\"nonce\":\"" + nonce + "\"}";
-   char post[], result[]; string headers = "Content-Type: application/json\r\n", rh;
-   StringToCharArray(body, post, 0, StringLen(body));
-   int code = WebRequest("POST", "https://YOUR-DOMAIN/api/license/validate", headers, 5000, post, result, rh);
-   if(code != 200) return false;                       // fail closed
-   string r = CharArrayToString(result);
-   return StringFind(r, "\"valid\":true") >= 0 && StringFind(r, "\"nonce\":\"" + nonce + "\"") >= 0;
-}
-// Call in OnInit() and again every few hours; stop trading if it returns false.
-```
-Also check the reply `sig` (HMAC-SHA256 of `valid|reason|expires|nonce|ts` with `LICENSE_RESPONSE_SECRET`) if you embed that secret; note that anything inside an EX5 can eventually be extracted, so treat client-side checks as deterrence, not absolute protection.
+The old online check (`/api/license/validate`) is still there if you later want a server check in the EA; your offline scheme does not need it.
 
 ## 6. Known limits / next steps
 - Rate limiting is in-memory (per server instance). For stronger protection use Upstash Redis/Vercel KV.

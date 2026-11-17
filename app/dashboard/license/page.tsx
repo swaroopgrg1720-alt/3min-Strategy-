@@ -25,8 +25,8 @@ export default async function Page() {
                 <div><dt className="text-muted">Expires</dt><dd>{l.plan === "lifetime" ? "Lifetime" : fmt(l.expiration_date)}</dd></div>
                 <div><dt className="text-muted">MT5 account</dt><dd>{l.mt5_account ?? "Not activated yet"}</dd></div>
               </dl>
-              <RevealKey licenseId={l.id} />
-              <p className="mt-3 text-xs text-muted">Keep your key private. The first MT5 account that activates it is locked to it. Contact support to change accounts.</p>
+              <RevealKey licenseId={l.id} boundAccount={l.mt5_account} />
+              <p className="mt-3 text-xs text-muted">Keep your key private. It works only on the MT5 account number above. For monthly licenses the key changes after each renewal, so come back here and copy the new one. Contact support to change accounts.</p>
             </div>
           ))}
         </div>
