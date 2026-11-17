@@ -19,7 +19,7 @@
 Redeploy after adding variables.
 
 ## 3. Go live checklist
-1. Open `/login`, sign in with your admin email (magic link), then open `/admin`.
+1. Open `/admin/login` → **Create admin account** (email must match `ADMIN_EMAILS`, pick a password of 10+ characters). Next time use **Sign in**. No email confirmation needed.
 2. **Products** → enter version + file path of the EX5 in the bucket → *Publish as current*.
 3. **Licenses** → create a test license for your own email → sign in as that email → `/dashboard/license` → *Show license key*, and `/dashboard/downloads` to test the download.
 4. Configure real networks and a payment provider (`lib/config/payments.ts`, `lib/payments/provider.ts`) and point the provider webhook to `https://YOUR-DOMAIN/api/webhooks/crypto`.

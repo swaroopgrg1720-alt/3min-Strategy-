@@ -24,7 +24,7 @@ export const isAdminEmail = (email?: string | null) =>
 
 /** Server-side admin gate. Call at the top of every admin page AND every admin action. */
 export async function requireAdmin() {
-  const user = await requireUser();
-  if (!isAdminEmail(user.email)) redirect("/dashboard");
+  const user = await getUser();
+  if (!user?.email || !isAdminEmail(user.email)) redirect("/admin/login");
   return user;
 }

@@ -6,9 +6,12 @@ export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const protectedPath = req.nextUrl.pathname.startsWith("/dashboard") || req.nextUrl.pathname.startsWith("/admin");
+  const path = req.nextUrl.pathname;
+  const isAdminArea = path.startsWith("/admin") && path !== "/admin/login";
+  const protectedPath = path.startsWith("/dashboard") || isAdminArea;
+  const loginPath = isAdminArea ? "/admin/login" : "/login";
   if (!url || !anon) {
-    if (protectedPath) return NextResponse.redirect(new URL("/login", req.url));
+    if (protectedPath) return NextResponse.redirect(new URL(loginPath, req.url));
     return res;
   }
   const supabase = createServerClient(url, anon, {
@@ -23,8 +26,8 @@ export async function middleware(req: NextRequest) {
   });
   const { data } = await supabase.auth.getUser(); // validates the JWT with Supabase
   if (protectedPath && !data.user) {
-    const to = new URL("/login", req.url);
-    to.searchParams.set("next", req.nextUrl.pathname);
+    const to = new URL(loginPath, req.url);
+    if (!isAdminArea) to.searchParams.set("next", path);
     return NextResponse.redirect(to);
   }
   return res;

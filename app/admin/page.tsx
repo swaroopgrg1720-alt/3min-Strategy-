@@ -41,7 +41,10 @@ export default async function Page() {
     <div className="container-x space-y-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold">Admin</h1>
-        <p className="text-sm text-muted">Signed in as {admin.email}</p>
+        <div className="flex items-center gap-3 text-sm text-muted">
+          <span>Signed in as {admin.email}</span>
+          <form action="/auth/signout" method="post"><button className="btn btn-ghost !py-1.5 !text-xs">Sign out</button></form>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
