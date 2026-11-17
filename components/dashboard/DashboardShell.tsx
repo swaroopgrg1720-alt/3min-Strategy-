@@ -6,6 +6,8 @@ export const dashNav = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/license", label: "My License" },
   { href: "/dashboard/downloads", label: "Download" },
+  { href: "/dashboard/journal", label: "Trading Journal" },
+  { href: "/dashboard/tools", label: "Trading Tools" },
   { href: "/dashboard/documentation", label: "Documentation" },
   { href: "/dashboard/support", label: "Support" },
   { href: "/dashboard/account", label: "Account" },

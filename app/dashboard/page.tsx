@@ -22,6 +22,8 @@ export default async function Page() {
       {!l && <p className="mt-6 text-sm text-muted">Signed in with a different email than your purchase? Use the same email you ordered with, or <Link className="text-accent underline" href="/contact">contact support</Link>.</p>}
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/dashboard/downloads" className="btn btn-primary">Download EA</Link>
+        <Link href="/dashboard/journal" className="btn btn-ghost">Trading Journal</Link>
+        <Link href="/dashboard/tools" className="btn btn-ghost">Trading Tools</Link>
         <Link href="/documentation" className="btn btn-ghost">Installation Guide</Link>
         <Link href="/dashboard/support" className="btn btn-ghost">Contact Support</Link>
       </div>

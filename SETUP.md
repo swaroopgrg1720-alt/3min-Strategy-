@@ -18,6 +18,9 @@
 
 Redeploy after adding variables.
 
+## 2b. Trading journal (customer tool)
+Run `supabase/migrations/002_journal.sql` in the SQL Editor (after 001). Customers then get **Trading Journal** and **Trading Tools** in their dashboard. Each customer's journal is private to them (Row Level Security).
+
 ## 3. Go live checklist
 1. Open `/admin/login` → **Create admin account** (email must match `ADMIN_EMAILS`, pick a password of 10+ characters). Next time use **Sign in**. No email confirmation needed.
 2. **Products** → enter version + file path of the EX5 in the bucket → *Publish as current*.

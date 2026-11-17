@@ -1,104 +1,55 @@
 "use client";
-
 import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
-type Mode = "login" | "signup" | "forgot";
+type State = "idle" | "sending" | "sent" | "error";
 
 export function LoginForm({ next = "/dashboard" }: { next?: string }) {
-  const [mode, setMode] = useState<Mode>("login");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [state, setState] = useState<State>("idle");
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setBusy(true);
-    setMessage("");
-    setError("");
-
-    const form = new FormData(e.currentTarget);
-    const email = String(form.get("email") ?? "").trim();
-    const password = String(form.get("password") ?? "");
-
-    try {
-      const supabase = supabaseBrowser();
-
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        window.location.assign(next);
-      } else if (mode === "signup") {
-        if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-          },
-        });
-        if (error) throw error;
-        if (data.session) {
-          window.location.assign(next);
-        } else {
-          setMessage("Your account request was submitted. Check your email to confirm your account before signing in. If email delivery is rate-limited, wait before requesting another email.");
-        }
-      } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
-        });
-        if (error) throw error;
-        setMessage("If the email can receive password-reset messages, a reset link will arrive shortly. Check your inbox and spam folder.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-    } finally {
-      setBusy(false);
-    }
+  async function send(e?: React.FormEvent) {
+    e?.preventDefault();
+    setState("sending");
+    setMsg("");
+    const { error } = await supabaseBrowser().auth.signInWithOtp({
+      email: email.trim(),
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+    });
+    if (error) { setState("error"); setMsg(error.message); } else setState("sent");
   }
 
-  return (
-    <div className="mt-6">
-      <div className="mb-5 flex gap-2">
-        <button type="button" onClick={() => { setMode("login"); setMessage(""); setError(""); }}
-          className={`rounded-lg px-3 py-2 text-sm ${mode === "login" ? "bg-accent text-bg" : "border border-line"}`}>
-          Sign in
-        </button>
-        <button type="button" onClick={() => { setMode("signup"); setMessage(""); setError(""); }}
-          className={`rounded-lg px-3 py-2 text-sm ${mode === "signup" ? "bg-accent text-bg" : "border border-line"}`}>
-          Create account
-        </button>
-        <button type="button" onClick={() => { setMode("forgot"); setMessage(""); setError(""); }}
-          className={`rounded-lg px-3 py-2 text-sm ${mode === "forgot" ? "bg-accent text-bg" : "border border-line"}`}>
-          Forgot password
-        </button>
+  if (state === "sent")
+    return (
+      <div role="status" className="mt-8 rounded-2xl border border-accent/30 bg-forest/30 p-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-accent/40 bg-bg text-accent" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+        </div>
+        <p className="mt-4 font-semibold">Check your email</p>
+        <p className="mt-1 text-sm text-muted">We sent a secure sign-in link to <span className="text-ink">{email}</span>. It expires shortly.</p>
+        <div className="mt-5 flex flex-wrap justify-center gap-3 text-sm">
+          <button onClick={() => send()} className="btn btn-ghost !py-2">Resend link</button>
+          <button onClick={() => setState("idle")} className="btn btn-ghost !py-2">Use a different email</button>
+        </div>
       </div>
+    );
 
-      <form onSubmit={onSubmit} className="space-y-4">
-        <label className="block text-sm font-medium">
-          Email
-          <input name="email" type="email" required autoComplete="email"
-            className="mt-2 w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm focus:border-accent/60" />
-        </label>
-
-        {mode !== "forgot" && (
-          <label className="block text-sm font-medium">
-            Password
-            <input name="password" type="password" required minLength={8}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              className="mt-2 w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm focus:border-accent/60" />
-            {mode === "signup" && <span className="mt-1 block text-xs text-muted">Use at least 8 characters.</span>}
-          </label>
-        )}
-
-        <button className="btn btn-primary w-full disabled:opacity-60" disabled={busy}>
-          {busy ? "Please wait…" : mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : "Send password reset email"}
-        </button>
-      </form>
-
-      {message && <p role="status" className="mt-4 rounded-xl border border-accent/30 bg-forest/30 p-4 text-sm text-accent">{message}</p>}
-      {error && <p role="alert" className="mt-4 text-sm text-red-400">{error}</p>}
-      <p className="mt-4 text-xs text-muted">Use the same email address associated with your purchase or licence.</p>
-    </div>
+  return (
+    <form onSubmit={send} className="mt-8 space-y-5">
+      <div>
+        <label htmlFor="login-email" className="text-sm font-medium">Email address</label>
+        <div className="relative mt-2">
+          <svg className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+          <input id="login-email" type="email" required autoComplete="email" inputMode="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-xl border border-line bg-bg py-3.5 pl-11 pr-4 text-sm placeholder:text-muted/60 focus:border-accent/60" />
+        </div>
+      </div>
+      <button className="btn btn-primary w-full !py-3.5 disabled:opacity-60" disabled={state === "sending"}>
+        {state === "sending" ? "Sending secure link…" : "Continue with email"}
+      </button>
+      {state === "error" && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">{msg}</p>}
+      <p className="text-center text-xs leading-relaxed text-muted">No password to remember. We email you a one-time link. New here? Use the email you purchased with and your account is ready.</p>
+    </form>
   );
 }
