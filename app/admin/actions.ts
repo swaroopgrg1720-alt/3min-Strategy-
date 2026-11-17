@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createManualLicense, fulfilOrder } from "@/lib/licensing/service";
@@ -8,10 +9,21 @@ import { isValidEmail, sanitizeText } from "@/lib/security";
 const str = (f: FormData, k: string, max = 200) => sanitizeText(f.get(k), max);
 const done = () => revalidatePath("/admin");
 
+/** Runs an action; on failure, shows the reason on the admin page instead of crashing. */
+async function guarded(fn: () => Promise<void>) {
+  let failure = "";
+  try {
+    await fn();
+  } catch (e) {
+    failure = e instanceof Error ? e.message : "Unknown error";
+  }
+  if (failure) redirect(`/admin?error=${encodeURIComponent(failure.slice(0, 300))}`);
+  done();
+}
+
 export async function confirmOrderAction(f: FormData) {
   await requireAdmin(); // every action re-checks admin on the server
-  await fulfilOrder(str(f, "orderId", 40)); // use ONLY after you have verified the payment on-chain
-  done();
+  await guarded(async () => { await fulfilOrder(str(f, "orderId", 40)); }); // ONLY after verifying the payment on-chain
 }
 
 export async function setLicenseStatusAction(f: FormData) {
@@ -46,8 +58,7 @@ export async function createLicenseAction(f: FormData) {
   const email = str(f, "email", 254).toLowerCase();
   const plan = str(f, "plan", 10);
   if (!isValidEmail(email) || (plan !== "monthly" && plan !== "lifetime")) return;
-  await createManualLicense(email, plan);
-  done();
+  await guarded(async () => { await createManualLicense(email, plan); });
 }
 
 export async function publishProductAction(f: FormData) {

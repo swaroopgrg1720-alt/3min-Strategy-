@@ -28,7 +28,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error: actionError } = await searchParams;
   const admin = await requireAdmin();
   const db = supabaseAdmin();
   const [orders, lics, products, tickets] = await Promise.all([
@@ -37,6 +38,7 @@ export default async function Page() {
     db.from("products").select("*").order("created_at", { ascending: false }).limit(20),
     db.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(50),
   ]);
+  const dbError = orders.error?.message || lics.error?.message;
   const licenses = (lics.data ?? []) as unknown as AdminLicense[];
   const customers = Array.from(new Set(licenses.map((l) => l.customer_email)));
 
@@ -50,6 +52,16 @@ export default async function Page() {
         </div>
       </div>
 
+      {dbError && (
+        <p role="alert" className="rounded-xl border border-red-400/40 bg-red-400/10 p-4 text-sm text-red-300">
+          Database problem: {dbError}. If it mentions a missing table, run supabase/migrations/001_init.sql in the Supabase SQL Editor.
+        </p>
+      )}
+      {actionError && (
+        <p role="alert" className="rounded-xl border border-red-400/40 bg-red-400/10 p-4 text-sm text-red-300">
+          Action failed: {actionError}
+        </p>
+      )}
       <div className="grid gap-4 sm:grid-cols-4">
         {[["Orders", orders.data?.length ?? 0], ["Customers", customers.length], ["Licenses", licenses.length], ["Active", licenses.filter((l) => licenseState(l) === "active").length]].map(([k, v]) => (
           <div key={k as string} className="card"><p className="text-xs uppercase tracking-wider text-muted">{k}</p><p className="mt-2 text-2xl font-bold">{v}</p></div>
