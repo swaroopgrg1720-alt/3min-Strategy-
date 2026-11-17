@@ -10,6 +10,9 @@ import {
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
+/** Admin list rows never include the key hash or ciphertext. */
+type AdminLicense = Omit<LicenseRow, "key_hash" | "key_ciphertext">;
+
 const fmt = (d?: string | null) => (d ? new Date(d).toISOString().slice(0, 16).replace("T", " ") : "—");
 const th = "py-2 pr-4 text-xs font-medium uppercase tracking-wider text-muted";
 const td = "py-2 pr-4 align-top";
@@ -34,7 +37,7 @@ export default async function Page() {
     db.from("products").select("*").order("created_at", { ascending: false }).limit(20),
     db.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(50),
   ]);
-  const licenses = (lics.data ?? []) as LicenseRow[];
+  const licenses = (lics.data ?? []) as unknown as AdminLicense[];
   const customers = Array.from(new Set(licenses.map((l) => l.customer_email)));
 
   return (
