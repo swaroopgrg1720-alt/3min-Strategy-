@@ -4,6 +4,7 @@ import { site } from "@/lib/config/site";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -49,9 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="font-sans">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <Navbar />
-        <main id="main">{children}</main>
-        <Footer />
+        <SiteChrome header={<Navbar />} footer={<Footer />}>{children}</SiteChrome>
         <CookieConsent />
       </body>
     </html>

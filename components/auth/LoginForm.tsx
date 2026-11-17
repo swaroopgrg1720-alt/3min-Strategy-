@@ -27,9 +27,9 @@ export function LoginForm({ next = "/dashboard" }: { next?: string }) {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
         </div>
         <p className="mt-4 font-semibold">Check your email</p>
-        <p className="mt-1 text-sm text-muted">We sent a secure sign-in link to <span className="text-ink">{email}</span>. It expires shortly.</p>
+        <p className="mt-1 text-sm text-muted">We sent a one-time sign-in link to <span className="text-ink">{email}</span>. It can be used once and expires soon.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-3 text-sm">
-          <button onClick={() => send()} className="btn btn-ghost !py-2">Resend link</button>
+          <button onClick={() => send()} className="btn btn-ghost !py-2">Send a new link</button>
           <button onClick={() => setState("idle")} className="btn btn-ghost !py-2">Use a different email</button>
         </div>
       </div>
@@ -46,10 +46,9 @@ export function LoginForm({ next = "/dashboard" }: { next?: string }) {
         </div>
       </div>
       <button className="btn btn-primary w-full !py-3.5 disabled:opacity-60" disabled={state === "sending"}>
-        {state === "sending" ? "Sending secure link…" : "Continue with email"}
+        {state === "sending" ? "Sending…" : "Send one-time link"}
       </button>
       {state === "error" && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">{msg}</p>}
-      <p className="text-center text-xs leading-relaxed text-muted">No password to remember. We email you a one-time link. New here? Use the email you purchased with and your account is ready.</p>
     </form>
   );
 }
