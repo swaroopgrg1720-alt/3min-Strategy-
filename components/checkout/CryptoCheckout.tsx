@@ -1,137 +1,202 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { cryptoOptions, PAYMENT_STATUS_LABELS, PAYMENT_WINDOW_SECONDS, WALLET_PLACEHOLDER, type Coin, type PaymentStatus } from "@/lib/config/payments";
+import { useCallback, useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { plans, type PlanId } from "@/lib/config/pricing";
+import { ORDER_VIEW_LABEL, type OrderView } from "@/lib/orders/status";
 
-function fmt(s: number) {
-  const m = Math.floor(s / 60).toString().padStart(2, "0");
-  return `${m}:${(s % 60).toString().padStart(2, "0")}`;
+interface Method { id: string; coin: string; network: string; is_stablecoin: boolean; instructions: string | null }
+interface Order {
+  orderId: string; plan: PlanId; amountUsd: number; coin: string; network: string; walletAddress: string;
+  isStablecoin: boolean; payNote: string | null; status: OrderView; txHash: string | null; rejectReason: string | null;
+  expiresAt: string | null; email: string;
 }
 
+const field = "mt-2 w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm focus:border-accent/60";
+const fmtClock = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+const STATUS_TONE: Record<OrderView, string> = {
+  awaiting_payment: "text-amber-300", under_review: "text-accent", approved: "text-accent", rejected: "text-red-400", expired: "text-red-400", refunded: "text-muted",
+};
+
 /**
- * Creates a real order via /api/checkout, then polls /api/orders/status.
- * There is intentionally no "I have paid" button: status comes from the server (webhook / admin confirmed).
+ * Manual crypto checkout. The customer pays to an address the owner published, then reports the transaction ID.
+ * Nothing is approved here: the owner verifies the payment on-chain and approves it in the admin panel.
  */
-export function CryptoCheckout({ initialPlan }: { initialPlan: PlanId }) {
+export function CryptoCheckout({ initialPlan, initialOrderId }: { initialPlan: PlanId; initialOrderId?: string }) {
   const [plan, setPlan] = useState<PlanId>(initialPlan);
-  const enabled = useMemo(() => cryptoOptions.filter((o) => o.enabled), []);
-  const [coin, setCoin] = useState<Coin>(enabled[0].coin);
-  const networks = enabled.find((o) => o.coin === coin)?.networks ?? [];
-  const [network, setNetwork] = useState(networks[0] ?? "");
-  const [seconds, setSeconds] = useState(PAYMENT_WINDOW_SECONDS);
-  const [status, setStatus] = useState<PaymentStatus>("awaiting_payment");
+  const [methods, setMethods] = useState<Method[] | null>(null);
+  const [methodId, setMethodId] = useState("");
   const [email, setEmail] = useState("");
+  const [order, setOrder] = useState<Order | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [order, setOrder] = useState<{ orderId: string; walletAddress: string; amount: string; expiresAt: string } | null>(null);
+  const [tx, setTx] = useState("");
+  const [note, setNote] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
-  async function createOrder(e: React.FormEvent) {
+  useEffect(() => {
+    fetch("/api/payment-methods").then((r) => r.json()).then((d) => {
+      const list: Method[] = d.methods ?? [];
+      setMethods(list);
+      if (list[0]) setMethodId(list[0].id);
+    }).catch(() => setMethods([]));
+  }, []);
+
+  const refresh = useCallback(async (id: string) => {
+    const r = await fetch(`/api/orders/status?orderId=${encodeURIComponent(id)}`);
+    if (r.ok) { const d = await r.json(); setOrder(d.order); }
+  }, []);
+
+  useEffect(() => { if (initialOrderId) refresh(initialOrderId); }, [initialOrderId, refresh]);
+
+  const orderId = order?.orderId;
+  const finished = order?.status === "approved" || order?.status === "refunded";
+  useEffect(() => {
+    if (!orderId || finished) return;
+    const poll = setInterval(() => refresh(orderId), 10_000);
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => { clearInterval(poll); clearInterval(tick); };
+  }, [orderId, finished, refresh]);
+
+  async function create(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
-    setError("");
+    setBusy(true); setError("");
     try {
-      const r = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan, coin, network, email }) });
+      const r = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan, methodId, email }) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || "Could not create the order.");
-      setOrder({ orderId: d.orderId, ...d.instructions });
-      setSeconds(Math.max(0, Math.floor((new Date(d.instructions.expiresAt).getTime() - Date.now()) / 1000)));
+      setOrder(d.order);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   }
 
-  useEffect(() => {
+  async function submitTx(e: React.FormEvent) {
+    e.preventDefault();
     if (!order) return;
-    const id = setInterval(async () => {
-      try {
-        const r = await fetch(`/api/orders/status?orderId=${encodeURIComponent(order.orderId)}`);
-        if (r.ok) setStatus((await r.json()).status);
-      } catch { /* keep polling */ }
-    }, 8000);
-    return () => clearInterval(id);
-  }, [order]);
+    setBusy(true); setError("");
+    try {
+      const r = await fetch("/api/orders/submit-payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.orderId, txHash: tx, note }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || "Could not submit.");
+      setOrder(d.order); setTx(""); setNote("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally { setBusy(false); }
+  }
 
-  useEffect(() => setNetwork(networks[0] ?? ""), [coin]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!order) return;
-    const id = setInterval(() => setSeconds((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(id);
-  }, [order]);
+  async function copy(text: string) {
+    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
+  }
 
-  const p = plans[plan];
-  const walletReady = !!order && order.walletAddress !== WALLET_PLACEHOLDER;
-  const confirmed = status === "payment_confirmed" || status === "order_complete";
-  const shownStatus = order && seconds === 0 && !confirmed ? PAYMENT_STATUS_LABELS.payment_expired : PAYMENT_STATUS_LABELS[status];
+  const p = plans[order?.plan ?? plan];
+  const secondsLeft = order?.expiresAt ? Math.max(0, Math.floor((new Date(order.expiresAt).getTime() - now) / 1000)) : 0;
+  const canSubmit = !!order && (order.status === "awaiting_payment" || order.status === "expired" || order.status === "rejected");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_1.15fr]">
       <section className="card" aria-labelledby="order-summary">
         <h2 id="order-summary" className="text-lg font-semibold">Order summary</h2>
         <dl className="mt-5 space-y-3 text-sm">
           <div className="flex justify-between"><dt className="text-muted">Product</dt><dd>3MIN SCALP</dd></div>
-          <div className="flex justify-between"><dt className="text-muted">License</dt>
+          <div className="flex items-center justify-between"><dt className="text-muted">License</dt>
             <dd>
               <label className="sr-only" htmlFor="plan">License</label>
-              <select id="plan" value={plan} onChange={(e) => setPlan(e.target.value as PlanId)} className="rounded-lg border border-line bg-bg px-3 py-1.5">
+              <select id="plan" value={order?.plan ?? plan} disabled={!!order} onChange={(e) => setPlan(e.target.value as PlanId)} className="rounded-lg border border-line bg-bg px-3 py-1.5">
                 <option value="monthly">Monthly</option><option value="lifetime">Lifetime</option>
               </select>
             </dd>
           </div>
-          <div className="flex justify-between"><dt className="text-muted">Price</dt><dd className="font-semibold">{p.priceLabel} {plan === "monthly" ? "/ month" : "one-time"}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted">Price</dt><dd className="font-semibold">{p.priceLabel} {p.id === "monthly" ? "/ month" : "one-time"}</dd></div>
           <div className="flex justify-between"><dt className="text-muted">Payment method</dt><dd>Cryptocurrency</dd></div>
         </dl>
-        <fieldset className="mt-6">
-          <legend className="text-sm text-muted">Cryptocurrency</legend>
-          <div className="mt-2 flex gap-2">
-            {enabled.map((o) => (
-              <button key={o.coin} type="button" aria-pressed={coin === o.coin} onClick={() => setCoin(o.coin)} className={`btn !py-2 ${coin === o.coin ? "btn-primary" : "btn-ghost"}`}>{o.coin}</button>
-            ))}
-          </div>
-        </fieldset>
-        <div className="mt-5">
-          <label htmlFor="network" className="text-sm text-muted">Network</label>
-          <select id="network" value={network} onChange={(e) => setNetwork(e.target.value)} className="mt-2 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm">
-            {networks.map((n) => (<option key={n}>{n}</option>))}
-          </select>
-        </div>
-        <form onSubmit={createOrder} className="mt-5">
-          <label htmlFor="email" className="text-sm text-muted">Email (your license is tied to this address)</label>
-          <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" disabled={!!order} className="mt-2 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" />
-          {!order && <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? "Creating order…" : "Create payment request"}</button>}
-          {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
-        </form>
+
+        {!order && (
+          <form onSubmit={create} className="mt-6">
+            {methods === null ? <p className="text-sm text-muted">Loading payment methods…</p> : methods.length === 0 ? (
+              <p role="status" className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-300">Payments are not open yet. Please check back soon or contact support.</p>
+            ) : (
+              <>
+                <label className="block text-sm">Pay with
+                  <select value={methodId} onChange={(e) => setMethodId(e.target.value)} className={field}>
+                    {methods.map((m) => <option key={m.id} value={m.id}>{m.coin} · {m.network}</option>)}
+                  </select>
+                </label>
+                <label className="mt-4 block text-sm">Email (your license is tied to this address)
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={field} />
+                </label>
+                <button className="btn btn-primary mt-5 w-full disabled:opacity-60" disabled={busy}>{busy ? "Creating order…" : "Continue to payment"}</button>
+              </>
+            )}
+            {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
+          </form>
+        )}
+        {order && <p className="mt-6 rounded-xl bg-forest/30 p-3 text-xs leading-relaxed text-muted">Order <span className="font-mono text-ink">{order.orderId}</span> for {order.email}. Save this order ID. You can return from <a className="text-accent underline" href="/dashboard/orders">My Orders</a> after signing in.</p>}
       </section>
 
       <section className="card" aria-labelledby="pay-title">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 id="pay-title" className="text-lg font-semibold">Payment instructions</h2>
-          {order && !walletReady && <span className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">Payments not enabled</span>}
+          {order && <span className={`text-sm font-semibold ${STATUS_TONE[order.status]}`} role="status" aria-live="polite">{ORDER_VIEW_LABEL[order.status]}</span>}
         </div>
-        <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row">
-          <div className="flex h-36 w-36 shrink-0 items-center justify-center rounded-xl border border-dashed border-line bg-bg text-center text-[11px] text-muted" role="img" aria-label="QR code placeholder">QR CODE<br />PLACEHOLDER</div>
-          <dl className="w-full space-y-3 text-sm">
-            <div><dt className="text-xs text-muted">Amount</dt><dd className="font-semibold">{p.priceUsd.toFixed(2)} USD in {coin}</dd></div>
-            <div><dt className="text-xs text-muted">Wallet address</dt><dd className="break-all rounded-lg border border-line bg-bg px-3 py-2 font-mono text-xs">{order ? order.walletAddress : WALLET_PLACEHOLDER}</dd></div>
-            <div><dt className="text-xs text-muted">Order ID</dt><dd className="font-mono text-xs">{order ? order.orderId : "Created after you submit your email"}</dd></div>
-          </dl>
-        </div>
-        <div className="mt-6 flex items-center justify-between rounded-xl border border-line bg-bg px-4 py-3 text-sm">
-          <span className="text-muted">Payment window</span>
-          <span className="font-mono text-lg font-semibold" role="timer" aria-live="off">{order ? fmt(seconds) : fmt(PAYMENT_WINDOW_SECONDS)}</span>
-        </div>
-        <p className="mt-4 text-sm" role="status" aria-live="polite">Status: <span className="font-semibold text-accent">{confirmed ? "Payment confirmed" : shownStatus === "Awaiting Payment" ? "Waiting for payment" : shownStatus}</span></p>
-        {confirmed && <p className="mt-2 text-sm text-muted">Your license is being prepared. <a className="text-accent underline" href="/login?next=/dashboard/license">Sign in</a> with {email} to view it.</p>}
-        <ol className="mt-4 space-y-1 text-xs text-muted">
-          <li>Awaiting Payment → Payment Detected → Payment Confirmed → Order Complete</li>
-          <li>After confirmation: “Payment confirmed. Your license is being prepared.”</li>
-        </ol>
-        <p className="mt-5 rounded-xl bg-forest/30 p-3 text-xs leading-relaxed text-muted">
-          Payments are confirmed server-side from the blockchain / payment provider, never by a button on this page.
-          {order && !walletReady && " Do not send funds: live payment processing is not enabled yet."}
-        </p>
+
+        {!order ? (
+          <p className="mt-5 text-sm text-muted">Choose a payment method and enter your email. The wallet address and exact amount appear here.</p>
+        ) : order.status === "approved" ? (
+          <div className="mt-5 rounded-2xl border border-accent/30 bg-forest/30 p-5">
+            <p className="font-semibold">Payment approved. Your license is ready.</p>
+            <p className="mt-1 text-sm text-muted">Sign in with <span className="text-ink">the email you used</span> to see your license and download the EA.</p>
+            <a href="/login?next=/dashboard/license" className="btn btn-primary mt-4">Sign in to get my license</a>
+          </div>
+        ) : (
+          <>
+            <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+              <div className="shrink-0 rounded-xl bg-white p-3" aria-label="QR code of the wallet address" role="img">
+                <QRCodeSVG value={order.walletAddress} size={140} level="M" />
+              </div>
+              <dl className="w-full space-y-3 text-sm">
+                <div><dt className="text-xs text-muted">Amount</dt>
+                  <dd className="font-semibold">{order.isStablecoin ? `${order.amountUsd.toFixed(2)} ${order.coin}` : `${order.amountUsd.toFixed(2)} USD worth of ${order.coin} (at the current market rate)`}</dd></div>
+                <div><dt className="text-xs text-muted">Network</dt><dd className="font-semibold">{order.network}</dd></div>
+                <div><dt className="text-xs text-muted">Wallet address</dt>
+                  <dd className="break-all rounded-lg border border-line bg-bg px-3 py-2 font-mono text-xs">{order.walletAddress}</dd>
+                  <button type="button" onClick={() => copy(order.walletAddress)} className="mt-2 text-xs text-accent underline">{copied ? "Copied" : "Copy address"}</button></div>
+              </dl>
+            </div>
+            <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs leading-relaxed text-amber-300">
+              Send only <strong>{order.coin}</strong> on the <strong>{order.network}</strong> network. Funds sent on another network may be lost and cannot be recovered. {order.payNote}
+            </p>
+            {order.status === "awaiting_payment" && (
+              <div className="mt-4 flex items-center justify-between rounded-xl border border-line bg-bg px-4 py-3 text-sm">
+                <span className="text-muted">Payment window</span><span className="font-mono text-lg font-semibold" role="timer" aria-live="off">{fmtClock(secondsLeft)}</span>
+              </div>
+            )}
+
+            {order.status === "rejected" && <p role="alert" className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">Your payment was rejected{order.rejectReason ? `: ${order.rejectReason}` : "."} If you believe this is a mistake, submit the correct transaction ID below or contact support.</p>}
+            {order.status === "expired" && <p className="mt-4 rounded-xl border border-line bg-bg p-3 text-sm text-muted">The payment window has ended. If you already sent the payment, submit your transaction ID below and we will review it.</p>}
+
+            {order.status === "under_review" ? (
+              <div className="mt-5 rounded-2xl border border-accent/30 bg-forest/30 p-5 text-sm">
+                <p className="font-semibold">Payment submitted. We are checking the blockchain.</p>
+                <p className="mt-1 break-all text-xs text-muted">Transaction ID: {order.txHash}</p>
+                <p className="mt-2 text-muted">You do not need to do anything else. This page updates when your payment is approved, and your license will appear after you sign in.</p>
+              </div>
+            ) : canSubmit && (
+              <form onSubmit={submitTx} className="mt-5 border-t border-line pt-5">
+                <h3 className="text-sm font-semibold">After you have sent the payment</h3>
+                <label className="mt-3 block text-sm">Transaction ID (hash)
+                  <input required minLength={8} maxLength={140} value={tx} onChange={(e) => setTx(e.target.value)} autoComplete="off" className={`${field} font-mono`} />
+                </label>
+                <label className="mt-3 block text-sm">Note (optional)
+                  <input maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} className={field} />
+                </label>
+                <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? "Submitting…" : "Submit payment for review"}</button>
+                {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
+                <p className="mt-3 text-xs leading-relaxed text-muted">Submitting does not approve your order. We verify every payment on the blockchain before issuing your license.</p>
+              </form>
+            )}
+          </>
+        )}
       </section>
     </div>
   );

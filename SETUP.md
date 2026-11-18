@@ -21,6 +21,14 @@ Redeploy after adding variables.
 ## 2b. Trading journal (customer tool)
 Run `supabase/migrations/002_journal.sql` in the SQL Editor (after 001). Customers then get **Trading Journal** and **Trading Tools** in their dashboard. Each customer's journal is private to them (Row Level Security).
 
+## 2c. Manual crypto payments
+Run `supabase/migrations/003_manual_payments.sql` (after 001 and 002).
+1. `/admin/payments` → **Payment methods** → add each coin, network and your wallet address (check every character).
+2. Customer flow: chooses a method and enters their email → sees your address, QR code and exact amount → pays → submits the transaction ID → status "under review".
+3. You: open `/admin/payments` → **To review** → check the transaction on the blockchain (right network, right address, full amount) → **Approve & issue license** or **Reject** with a reason.
+4. After approval the customer signs in (same email) and gets their license key in **My License** (see section 5 for the EA key). Rejected customers see your reason and can resubmit.
+Notes: nothing is approved automatically; the same transaction ID used on two orders is flagged; each order keeps a snapshot of the address it showed, so changing methods never affects past orders.
+
 ## 3. Go live checklist
 1. Open `/admin/login` → **Create admin account** (email must match `ADMIN_EMAILS`, pick a password of 10+ characters). Next time use **Sign in**. No email confirmation needed.
 2. **Products** → enter version + file path of the EX5 in the bucket → *Publish as current*.

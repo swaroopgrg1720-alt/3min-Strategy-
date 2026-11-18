@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { licenseState, type LicenseRow } from "@/lib/licensing/service";
@@ -38,6 +39,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
     db.from("products").select("*").order("created_at", { ascending: false }).limit(20),
     db.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(50),
   ]);
+  const { count: pendingCount } = await db.from("orders").select("order_id", { count: "exact", head: true }).eq("order_status", "payment_detected");
+  const pending = pendingCount ?? 0;
   const dbError = orders.error?.message || lics.error?.message;
   const licenses = (lics.data ?? []) as unknown as AdminLicense[];
   const customers = Array.from(new Set(licenses.map((l) => l.customer_email)));
@@ -45,7 +48,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
   return (
     <div className="container-x space-y-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">Admin</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl font-bold">Admin</h1>
+          <Link href="/admin/payments" className="btn btn-primary !py-2">Payments &amp; approvals{pending > 0 ? ` (${pending})` : ""}</Link>
+        </div>
         <div className="flex items-center gap-3 text-sm text-muted">
           <span>Signed in as {admin.email}</span>
           <form action="/auth/signout" method="post"><button className="btn btn-ghost !py-1.5 !text-xs">Sign out</button></form>

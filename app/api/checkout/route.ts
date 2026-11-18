@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
-import { cryptoOptions } from "@/lib/config/payments";
 import { isPlanId, plans } from "@/lib/config/pricing";
-import { paymentProvider } from "@/lib/payments/provider";
 import { clientKey, isValidEmail, rateLimit, sanitizeText } from "@/lib/security";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
+import { toOrderView } from "@/lib/orders/view";
 
-/** Creates an order + payment request. The AMOUNT is always derived server-side from the plan. */
+const WINDOW_MINUTES = 60;
+
+/** Creates an order for a payment method the owner enabled. The AMOUNT is always derived server-side from the plan. */
 export async function POST(req: Request) {
   if (!rateLimit(`checkout:${clientKey(req)}`, 10, 60_000)) return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   if (!isSupabaseConfigured()) return NextResponse.json({ error: "Checkout is not available yet." }, { status: 503 });
@@ -15,20 +16,22 @@ export async function POST(req: Request) {
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
 
   const email = sanitizeText(body.email, 254).toLowerCase();
-  const coin = sanitizeText(body.coin, 10);
-  const network = sanitizeText(body.network, 60);
-  if (!isPlanId(body.plan) || !isValidEmail(email)) return NextResponse.json({ error: "Invalid plan or email." }, { status: 400 });
-  const option = cryptoOptions.find((o) => o.coin === coin && o.enabled);
-  if (!option || !option.networks.includes(network)) return NextResponse.json({ error: "Unsupported coin or network." }, { status: 400 });
+  const methodId = sanitizeText(body.methodId, 40);
+  if (!isPlanId(body.plan) || !isValidEmail(email) || !/^[0-9a-f-]{36}$/i.test(methodId)) {
+    return NextResponse.json({ error: "Please choose a plan, a payment method and enter a valid email." }, { status: 400 });
+  }
+
+  const db = supabaseAdmin();
+  const { data: method } = await db.from("payment_methods").select("*").eq("id", methodId).eq("enabled", true).maybeSingle();
+  if (!method) return NextResponse.json({ error: "That payment method is not available." }, { status: 400 });
 
   const orderId = `ORD-${randomBytes(6).toString("hex").toUpperCase()}`; // unguessable
-  const amountUsd = plans[body.plan].priceUsd;
-  const instructions = await paymentProvider.createPayment({ orderId, plan: body.plan, coin: option.coin, network, amountUsd, customerEmail: email });
-
-  const { error } = await supabaseAdmin().from("orders").insert({
-    order_id: orderId, customer_email: email, plan: body.plan, amount_usd: amountUsd,
-    coin: option.coin, network, expires_at: instructions.expiresAt,
-  });
-  if (error) return NextResponse.json({ error: "Could not create order." }, { status: 500 });
-  return NextResponse.json({ orderId, instructions });
+  const { data: order, error } = await db.from("orders").insert({
+    order_id: orderId, customer_email: email, plan: body.plan, amount_usd: plans[body.plan].priceUsd,
+    coin: method.coin, network: method.network, payment_method_id: method.id, wallet_address: method.address,
+    is_stablecoin: method.is_stablecoin, pay_note: method.instructions,
+    expires_at: new Date(Date.now() + WINDOW_MINUTES * 60_000).toISOString(),
+  }).select("*").single();
+  if (error || !order) return NextResponse.json({ error: "Could not create order." }, { status: 500 });
+  return NextResponse.json({ order: toOrderView(order) });
 }
