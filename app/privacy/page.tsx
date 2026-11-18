@@ -7,7 +7,6 @@ export const metadata: Metadata = { title: "Privacy Policy", alternates: { canon
 export default function Page() {
   return (
     <LegalPage title="Privacy Policy">
-      <p>This is a template to be reviewed by a qualified professional. It does not claim compliance with any specific law.</p>
       <p>Effective date: <Placeholder>{legal.effectiveDate}</Placeholder></p>
       <h2>Information collected</h2>
       <p>Information you provide (name, email, messages), order details, and technical data such as device and usage information.</p>
@@ -16,19 +15,22 @@ export default function Page() {
       <h2>Email</h2>
       <p>We use your email for order confirmations, license and download notices, and support replies.</p>
       <h2>Payment processing</h2>
-      <p>Payments are made in cryptocurrency. Blockchain transactions are public by nature. Payment verification is handled server-side, with a payment provider if configured: <Placeholder>[PAYMENT PROVIDER]</Placeholder>. We never ask for your private keys.</p>
-      <h2>Cookies</h2>
-      <p>Essential cookies are always used. Analytics and marketing cookies are only used if you accept them in the cookie banner.</p>
+      <p>Payments are made in cryptocurrency. Blockchain transactions are public by nature. Payment verification is handled server-side, through our payment provider, CryptoPayr. We never ask for your private keys.</p>
+      <h2>Cookies and marketing</h2>
+      <p>Essential cookies are always used. Marketing cookies are used only if you provide your consent through our website&apos;s cookie banner. You can manage or withdraw your cookie preferences at any time through the available cookie settings.</p>
       <h2>Analytics</h2>
-      <p>If enabled and accepted, analytics tools such as <Placeholder>[ANALYTICS PROVIDERS]</Placeholder> may be used.</p>
+      <p>If you consent to analytics cookies, we may use analytics tools to collect information about how visitors interact with our website. This information helps us understand website traffic, improve user experience, and enhance our services.</p>
       <h2>Support information</h2>
-      <p>Messages and tickets you send are stored to respond to you and improve support.</p>
+      <p>When you contact us through our website, email, or support channels, we may collect and store your messages, contact details, and support requests. This information is used solely to respond to your inquiries, provide technical assistance, resolve issues, and improve our customer support services.</p>
       <h2>Data retention</h2>
-      <p><Placeholder>[INSERT RETENTION PERIODS]</Placeholder></p>
+      <p>We retain personal information only for as long as necessary to fulfil the purposes described in this Privacy Policy, including providing our services, maintaining customer records, resolving disputes, and meeting applicable legal obligations.</p>
+      <p>When personal information is no longer required, we take reasonable steps to securely delete or anonymize it.</p>
       <h2>Security</h2>
-      <p>We use reasonable technical measures, but no system is completely secure.</p>
+      <p>We implement reasonable technical and organizational security measures to protect your personal information against unauthorized access, disclosure, alteration, or destruction.</p>
+      <p>However, no method of electronic storage or internet transmission is completely secure, and we cannot guarantee absolute security of your information.</p>
       <h2>Third-party services</h2>
-      <p>Hosting, email, payment and analytics providers may process data on our behalf: <Placeholder>[LIST PROVIDERS]</Placeholder>.</p>
+      <p>We may use third-party service providers to operate and maintain our website and services. These providers may include website hosting, email communication, payment processing, customer support, and analytics services.</p>
+      <p>Such providers may process limited personal information on our behalf where necessary to perform their services. We do not authorize them to use your information for purposes unrelated to the services they provide to us.</p>
       <h2>Your rights</h2>
       <p>Depending on where you live, you may have rights to access, correct or delete your data. Contact us to make a request.</p>
       <h2>Contact</h2>
