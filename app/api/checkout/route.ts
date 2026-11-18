@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const pay = await createPayment({
       orderId, amountUsd,
       successUrl: `${site.url}/checkout/success?order=${orderId}`,
-      cancelUrl: `${site.url}/checkout?plan=${body.plan}`,
+      cancelUrl: `${site.url}/checkout/cancelled?plan=${body.plan}`,
       webhookUrl: `${site.url}/api/webhooks/crypto`,
     });
     await db.from("orders").update({ provider_ref: pay.tid }).eq("order_id", orderId);

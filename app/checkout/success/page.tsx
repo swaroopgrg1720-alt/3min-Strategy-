@@ -2,17 +2,23 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/SectionHeading";
 import { PaymentStatus } from "@/components/checkout/PaymentStatus";
 
-export const metadata: Metadata = { title: "Payment status", robots: { index: false } };
+export const metadata: Metadata = { title: "Thank you", robots: { index: false } };
 
+/** Default success page. Also works with no ?order= (e.g. a CryptoPayr payment link that redirects here). */
 export default async function Page({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const { order } = await searchParams;
+  const valid = !!order && /^ORD-[A-F0-9]{12}$/.test(order);
   return (
     <>
-      <PageHeader eyebrow="Checkout" title="Payment status" text="Your license is issued as soon as the payment is confirmed." />
+      <PageHeader eyebrow="Checkout" title="Thank you for purchasing 3MIN SCALP" text="Your license is issued as soon as the payment is confirmed on the blockchain." />
       <section className="section"><div className="container-x">
-        {order && /^ORD-[A-F0-9]{12}$/.test(order)
-          ? <PaymentStatus orderId={order} />
-          : <p className="text-center text-muted">Order not found. <a className="text-accent underline" href="/checkout">Back to checkout</a></p>}
+        {valid ? <PaymentStatus orderId={order} /> : (
+          <div className="card mx-auto max-w-xl text-center">
+            <h2 className="text-xl font-semibold text-accent">We received your request</h2>
+            <p className="mt-2 text-sm text-muted">Once your payment is confirmed, sign in with the email you used at checkout to get your license key and download.</p>
+            <a className="btn btn-primary mt-5" href="/login?next=/dashboard/license">Sign in</a>
+          </div>
+        )}
       </div></section>
     </>
   );

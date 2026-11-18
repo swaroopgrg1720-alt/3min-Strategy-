@@ -26,7 +26,7 @@ export function PaymentStatus({ orderId }: { orderId: string }) {
       <p className="text-xs uppercase tracking-wider text-muted">Order <span className="font-mono">{orderId}</span></p>
       {done ? (
         <>
-          <h2 className="mt-3 text-xl font-semibold text-accent">Payment confirmed</h2>
+          <h2 className="mt-3 text-xl font-semibold text-accent">Thank you for purchasing! Payment confirmed</h2>
           <p className="mt-2 text-sm text-muted">Your license is ready. Sign in with the email you used at checkout to view it.</p>
           <a className="btn btn-primary mt-5" href="/login?next=/dashboard/license">Sign in to get your key</a>
         </>
