@@ -3,17 +3,17 @@ import type { ReactNode } from "react";
 
 export const faqs: { q: string; a: ReactNode; plain: string }[] = [
   { q: "What is 3MIN SCALP?", plain: "3MIN SCALP is a MetaTrader 5 Expert Advisor designed for automated trading across EURUSD, GBPUSD and XAUUSD.", a: "3MIN SCALP is a MetaTrader 5 Expert Advisor designed for automated trading across EURUSD, GBPUSD and XAUUSD." },
-  { q: "Which platform does it support?", plain: "MetaTrader 5.", a: "MetaTrader 5." },
-  { q: "Which instruments are supported?", plain: "EURUSD, GBPUSD and XAUUSD.", a: "EURUSD, GBPUSD and XAUUSD." },
-  { q: "Does it guarantee profits?", plain: "No. No trading system can guarantee profits.", a: "No. No trading system can guarantee profits." },
-  { q: "Can I test it on demo?", plain: "Yes. Demo testing is recommended before using real funds.", a: "Yes. Demo testing is recommended before using real funds." },
-  { q: "Do I need a VPS?", plain: "VPS usage can be useful for continuous automated operation, but requirements depend on the user's setup.", a: "VPS usage can be useful for continuous automated operation, but requirements depend on the user's setup." },
-  { q: "Can I use it with my broker?", plain: "Broker conditions may affect EA execution. Demo testing is recommended.", a: "Broker conditions may affect EA execution. Demo testing is recommended." },
-  { q: "Do you offer monthly access?", plain: "Yes.", a: "Yes." },
-  { q: "Do you offer lifetime access?", plain: "Yes.", a: "Yes." },
-  { q: "How do I install it?", plain: "See the documentation.", a: <>Follow the step-by-step guide in the <Link href="/documentation" className="text-accent underline">Documentation</Link>.</> },
-  { q: "How do I receive the EA?", plain: "After confirmed payment and license creation, the customer receives access through the customer area.", a: "After confirmed payment and license creation, the customer receives access through the customer area." },
-  { q: "What payment methods are supported?", plain: "Cryptocurrency only.", a: "Cryptocurrency only." },
+  { q: "Which platform does it support?", plain: "The EA is compatible with MetaTrader 5 (MT5).", a: "The EA is compatible with MetaTrader 5 (MT5)." },
+  { q: "Which instruments are supported?", plain: "The EA currently supports EURUSD, GBPUSD, and XAUUSD (Gold).", a: "The EA currently supports EURUSD, GBPUSD, and XAUUSD (Gold)." },
+  { q: "Does it guarantee profits?", plain: "No. The EA does not guarantee profits, as all trading involves risk and no trading system can guarantee consistent returns.", a: "No. The EA does not guarantee profits, as all trading involves risk and no trading system can guarantee consistent returns." },
+  { q: "Can I test it on a demo account?", plain: "Yes. You can test the EA on a demo account before using it with real funds. Demo testing is recommended to evaluate its performance and compatibility with your broker.", a: "Yes. You can test the EA on a demo account before using it with real funds. Demo testing is recommended to evaluate its performance and compatibility with your broker." },
+  { q: "Do I need a VPS?", plain: "A VPS is recommended for uninterrupted automated trading. However, whether you need one depends on your trading setup and requirements.", a: "A VPS is recommended for uninterrupted automated trading. However, whether you need one depends on your trading setup and requirements." },
+  { q: "Can I use it with my broker?", plain: "Yes. The EA can be used with brokers that support MetaTrader 5. However, broker-specific conditions, such as spreads, execution speed, and trading rules, may affect its performance. Demo testing is recommended before live use.", a: "Yes. The EA can be used with brokers that support MetaTrader 5. However, broker-specific conditions, such as spreads, execution speed, and trading rules, may affect its performance. Demo testing is recommended before live use." },
+  { q: "Do you offer monthly access?", plain: "Yes. Monthly access is available through a subscription.", a: "Yes. Monthly access is available through a subscription." },
+  { q: "Do you offer lifetime access?", plain: "Yes. We also offer a lifetime access option, allowing you to use the EA without recurring subscription payments.", a: "Yes. We also offer a lifetime access option, allowing you to use the EA without recurring subscription payments." },
+  { q: "How do I install it?", plain: "You can install the EA by following the step-by-step instructions provided in the Documentation.", a: <>You can install the EA by following the step-by-step instructions provided in the <Link href="/documentation" className="text-accent underline">Documentation</Link>.</> },
+  { q: "How do I receive the EA?", plain: "Once your payment is confirmed and your license is created, you will receive access to the EA through your customer area.", a: "Once your payment is confirmed and your license is created, you will receive access to the EA through your customer area." },
+  { q: "What payment methods are supported?", plain: "Currently, we accept cryptocurrency payments only.", a: "Currently, we accept cryptocurrency payments only." },
 ];
 
 export function FAQ() {
