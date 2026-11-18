@@ -50,3 +50,12 @@ export async function POST(req: Request) {
   }
   return NextResponse.json({ received: true });
 }
+
+/** Browser-friendly health check. CryptoPayr itself sends POST. Reveals no secrets. */
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    endpoint: "CryptoPayr webhook (POST only)",
+    apiKeyConfigured: !!process.env.CRYPTO_PAYMENT_API_KEY,
+  });
+}
