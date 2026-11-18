@@ -18,9 +18,9 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: site.title,
     description: site.description,
-    images: [{ url: "/social-profile.svg", width: 400, height: 400, alt: "3MIN SCALP" }],
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: "3MIN SCALP" }],
   },
-  twitter: { card: "summary", title: site.title, description: site.description, images: ["/social-profile.svg"] },
+  twitter: { card: "summary", title: site.title, description: site.description, images: ["/logo.png"] },
   robots: { index: true, follow: true },
 };
 
@@ -29,7 +29,7 @@ export const viewport: Viewport = { themeColor: "#080D12", width: "device-width"
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "Organization", name: site.name, url: site.url, logo: `${site.url}/logo-mark.svg` },
+    { "@type": "Organization", name: site.name, url: site.url, logo: `${site.url}/logo.png` },
     {
       "@type": "SoftwareApplication",
       name: site.name,

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Empty } from "@/components/dashboard/DashboardShell";
 import { RevealKey } from "@/components/dashboard/RevealKey";
 import { myLicenses } from "@/lib/db/customer";
@@ -9,7 +10,7 @@ export default async function Page() {
   const lics = await myLicenses();
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold">My License</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold">My License</h1><Link href="/dashboard/renew" className="btn btn-primary !py-2">Renew / extend</Link></div>
       {lics.length === 0 ? (
         <Empty title="No license found" text="Once your payment is confirmed your license appears here. Make sure you signed in with the email you purchased with." />
       ) : (

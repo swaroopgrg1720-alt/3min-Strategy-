@@ -55,3 +55,6 @@ The old online check (`/api/license/validate`) is still there if you later want 
 - Confirmation emails are stubbed (`lib/email/templates.ts`); add an email provider.
 - Verify the **paid amount and coin** inside your provider's webhook before confirming.
 - Customers can't unbind their MT5 account themselves; use *Unbind account* in `/admin` after a support request.
+
+## Multi-month purchases
+Run `supabase/migrations/004_months.sql` once in the Supabase SQL editor. Without it, 1-month and lifetime purchases still work, but orders for 2+ months will fail until it is run.

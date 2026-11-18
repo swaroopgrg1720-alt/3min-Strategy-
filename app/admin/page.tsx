@@ -75,7 +75,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
             {(orders.data ?? []).length === 0 && <tr><td colSpan={7} className="py-6 text-muted">No orders yet.</td></tr>}
             {(orders.data ?? []).map((o) => (
               <tr key={o.order_id} className="border-t border-line">
-                <td className={`${td} font-mono text-xs`}>{o.order_id}</td><td className={td}>{o.customer_email}</td><td className={td}>{o.plan}</td>
+                <td className={`${td} font-mono text-xs`}>{o.order_id}</td><td className={td}>{o.customer_email}</td><td className={td}>{o.plan}{o.months > 1 ? ` ×${o.months}` : ""}</td>
                 <td className={td}>${o.amount_usd} {o.coin}</td><td className={td}>{o.payment_status}</td><td className={td}>{fmt(o.created_at)}</td>
                 <td className={td}>
                   {o.order_status !== "confirmed" && o.order_status !== "refunded" && (

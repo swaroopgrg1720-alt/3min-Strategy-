@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 const ICONS: Record<string, string[]> = {
   dashboard: ["M4 4h7v7H4z", "M13 4h7v4h-7z", "M13 10h7v10h-7z", "M4 13h7v7H4z"],
   license: ["M15 7a4 4 0 1 1-3.9 4.9L4 19v-3h3v-2h2l2.1-2.1A4 4 0 0 1 15 7z", "M16.5 8.5h.01"],
+  renew: ["M20 12a8 8 0 1 1-2.4-5.7", "M20 4v5h-5"],
   download: ["M12 4v11", "m7 11 5 5 5-5", "M5 20h14"],
   journal: ["M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z", "M6 3v18", "M10 8h6", "M10 12h6"],
   tools: ["M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z", "M8 7h8", "M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"],
@@ -28,6 +29,7 @@ function Icon({ name }: { name: string }) {
 export const dashNav = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/dashboard/license", label: "My License", icon: "license" },
+  { href: "/dashboard/renew", label: "Renew / Buy", icon: "renew" },
   { href: "/dashboard/downloads", label: "Download", icon: "download" },
   { href: "/dashboard/journal", label: "Trading Journal", icon: "journal" },
   { href: "/dashboard/tools", label: "Trading Tools", icon: "tools" },

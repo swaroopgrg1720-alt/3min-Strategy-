@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
-import { isPlanId, plans } from "@/lib/config/pricing";
+import { getUser } from "@/lib/auth";
+import { isPlanId, orderTotalUsd, parseMonths } from "@/lib/config/pricing";
 import { site } from "@/lib/config/site";
 import { createPayment } from "@/lib/payments/cryptopayr";
 import { clientKey, isValidEmail, rateLimit, sanitizeText } from "@/lib/security";
@@ -14,20 +15,23 @@ export async function POST(req: Request) {
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
-  const email = sanitizeText(body.email, 254).toLowerCase();
+  // Signed-in customers (dashboard renewals) use their account email; guests must type one.
+  const user = body.email ? null : await getUser().catch(() => null);
+  const email = sanitizeText(body.email || user?.email || "", 254).toLowerCase();
   if (!isPlanId(body.plan) || !isValidEmail(email)) return NextResponse.json({ error: "Invalid plan or email." }, { status: 400 });
 
   const orderId = `ORD-${randomBytes(6).toString("hex").toUpperCase()}`; // unguessable
-  const amountUsd = plans[body.plan].priceUsd;
+  const months = body.plan === "monthly" ? parseMonths(body.months) : 1;
+  const amountUsd = orderTotalUsd(body.plan, months);
   const db = supabaseAdmin();
-  const ins = await db.from("orders").insert({ order_id: orderId, customer_email: email, plan: body.plan, amount_usd: amountUsd, coin: "CRYPTO", network: "CryptoPayr" });
+  const ins = await db.from("orders").insert({ order_id: orderId, customer_email: email, plan: body.plan, amount_usd: amountUsd, coin: "CRYPTO", network: "CryptoPayr", ...(months > 1 ? { months } : {}) });
   if (ins.error) return NextResponse.json({ error: "Could not create order." }, { status: 500 });
 
   try {
     const pay = await createPayment({
       orderId, amountUsd,
       successUrl: `${site.url}/checkout/success?order=${orderId}`,
-      cancelUrl: `${site.url}/checkout/cancelled?plan=${body.plan}`,
+      cancelUrl: `${site.url}/checkout/cancelled?plan=${body.plan}${body.from === "dashboard" ? "&from=dashboard" : ""}`,
       webhookUrl: `${site.url}/api/webhooks/crypto`,
     });
     await db.from("orders").update({ provider_ref: pay.tid }).eq("order_id", orderId);
