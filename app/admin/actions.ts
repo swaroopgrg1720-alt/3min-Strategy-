@@ -5,6 +5,8 @@ import { requireAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createManualLicense, fulfilOrder } from "@/lib/licensing/service";
 import { isValidEmail, sanitizeText } from "@/lib/security";
+import { lookupPayment } from "@/lib/payments/cryptopayr";
+import { settleOrder } from "@/lib/payments/settle";
 
 const str = (f: FormData, k: string, max = 200) => sanitizeText(f.get(k), max);
 const done = () => revalidatePath("/admin");
@@ -24,6 +26,21 @@ async function guarded(fn: () => Promise<void>) {
 export async function confirmOrderAction(f: FormData) {
   await requireAdmin(); // every action re-checks admin on the server
   await guarded(async () => { await fulfilOrder(str(f, "orderId", 40)); }); // ONLY after verifying the payment on-chain
+}
+
+/** Asks CryptoPayr for the live payment status (use if a webhook was missed) and settles the order if it is COMPLETED and exact. */
+export async function syncOrderAction(f: FormData) {
+  await requireAdmin();
+  await guarded(async () => {
+    const { data: order } = await supabaseAdmin().from("orders").select("*").eq("order_id", str(f, "orderId", 40)).maybeSingle();
+    if (!order) throw new Error("Order not found.");
+    if (!order.provider_ref) throw new Error("This order has no CryptoPayr payment id.");
+    const live = await lookupPayment(order.provider_ref);
+    if (!live) throw new Error("Could not reach CryptoPayr. Try again.");
+    const r = await settleOrder(order, live);
+    if (r === "not_completed") throw new Error(`CryptoPayr status: ${live.status}. Nothing to issue yet.`);
+    if (r !== "fulfilled") throw new Error(`Payment is ${r}: amount does not match the order. Review it, then use Confirm if you accept it.`);
+  });
 }
 
 export async function setLicenseStatusAction(f: FormData) {

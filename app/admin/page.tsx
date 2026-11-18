@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { licenseState, type LicenseRow } from "@/lib/licensing/service";
 import {
   confirmOrderAction, createLicenseAction, extendLicenseAction, publishProductAction,
-  resetAccountAction, setLicenseStatusAction, setTicketStatusAction,
+  resetAccountAction, setLicenseStatusAction, setTicketStatusAction, syncOrderAction,
 } from "./actions";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
@@ -79,8 +79,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
                 <td className={td}>${o.amount_usd} {o.coin}</td><td className={td}>{o.payment_status}</td><td className={td}>{fmt(o.created_at)}</td>
                 <td className={td}>
                   {o.order_status !== "confirmed" && o.order_status !== "refunded" && (
+                    <div className="flex flex-wrap gap-2">
+                    {o.provider_ref && <form action={syncOrderAction}><input type="hidden" name="orderId" value={o.order_id} /><button className={mini}>Check with CryptoPayr</button></form>}
                     <form action={confirmOrderAction}><input type="hidden" name="orderId" value={o.order_id} />
                       <button className={mini} title="Only after verifying the payment on-chain">Confirm paid &amp; issue license</button></form>
+                    </div>
                   )}
                 </td>
               </tr>

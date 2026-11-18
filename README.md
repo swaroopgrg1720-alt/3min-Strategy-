@@ -20,7 +20,7 @@ npm run build && npm start
 | Business email, socials | `NEXT_PUBLIC_BUSINESS_EMAIL`, `NEXT_PUBLIC_*_URL` |
 | Legal name/address/date | `lib/config/site.ts` (`legal`) |
 | Refund policy text | `NEXT_PUBLIC_REFUND_POLICY_TEXT` or `lib/config/legal.ts` |
-| Wallet addresses / networks | `lib/config/payments.ts` (use a payment provider; never put keys in the frontend) |
+| CryptoPayr key + webhook | Vercel env vars, see SETUP.md |
 | Terms / Privacy bracketed items | `app/terms`, `app/privacy` (have a lawyer review) |
 
 > Backend (Supabase database, login, licenses, admin, secure downloads): see **SETUP.md**.

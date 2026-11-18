@@ -14,7 +14,11 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | from Supabase. **Server-only. Never share or commit.** |
 | `LICENSE_KEY_PEPPER`, `LICENSE_ENCRYPTION_KEY`, `LICENSE_RESPONSE_SECRET` | three different values, each from `openssl rand -base64 32` (any 32-byte base64 string works). **Back them up: losing the encryption key makes stored keys unreadable.** |
 | `ADMIN_EMAILS` | your email (comma-separate more) |
-| `CRYPTO_WEBHOOK_SECRET`, `CRYPTO_PAYMENT_API_KEY` | from your payment provider, when chosen |
+| `CRYPTO_PAYMENT_API_KEY` | your CryptoPayr secret key (`sk_live_…`; use `sk_test_…` to test). **Server-only.** Also verifies webhook signatures. |
+| `CRYPTO_WEBHOOK_SECRET` | optional, only if CryptoPayr gives a separate webhook secret |
+| `NEXT_PUBLIC_SITE_URL` | your real `https://` site address (not localhost), because CryptoPayr redirects customers and sends webhooks there |
+
+**CryptoPayr:** in its dashboard set the webhook URL to `https://YOUR-DOMAIN/api/webhooks/crypto`. Checkout redirects to CryptoPayr; the license is issued when the signed `COMPLETED` webhook arrives. Webhooks are sent once (no retries): if one is missed, open Admin → Orders → **Check with CryptoPayr**. Check in CryptoPayr's settings where funds are held and how you withdraw them before going live.
 
 Redeploy after adding variables.
 
