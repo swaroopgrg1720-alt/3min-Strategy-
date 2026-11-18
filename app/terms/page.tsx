@@ -16,7 +16,15 @@ export default function Page() {
       <h2>1. Product usage</h2>
       <p>3MIN SCALP is a MetaTrader 5 Expert Advisor distributed as a compiled EX5 file. You are responsible for how you configure and operate it, and for your trading decisions. Demo testing is strongly recommended.</p>
       <h2>2. License restrictions</h2>
-      <p>A license grants you a limited, non-exclusive, non-transferable right to use the product under the plan you purchased (monthly or lifetime). <Placeholder>[INSERT LICENSE SCOPE, E.G. NUMBER OF ACCOUNTS]</Placeholder></p>
+      <p>A license grants you a limited, non-exclusive, non-transferable right to use the product under the plan you purchased (monthly or lifetime). The scope of the license is as follows:</p>
+      <ul>
+        <li><strong>One account per license:</strong> each license key may be used on one MetaTrader 5 account number only. The key is bound to the first account number you enter when you activate it. If you need to use a different account, contact support.</li>
+        <li><strong>Personal use:</strong> the license is for your own use. You may not share your license key or allow others to use it.</li>
+        <li><strong>Monthly licenses:</strong> access lasts for the period you paid for and ends at expiration unless renewed. After a renewal you may receive a new license key, which you can copy from your customer area.</li>
+        <li><strong>Lifetime licenses:</strong> a lifetime license does not expire and does not require recurring payments, subject to these terms.</li>
+        <li><strong>Additional accounts:</strong> to use the product on more than one MetaTrader 5 account, a separate license is required for each account.</li>
+        <li><strong>Misuse:</strong> using a key on an account it is not bound to, or attempting to bypass the license check, is a breach of these terms and may result in suspension or termination of the license.</li>
+      </ul>
       <h2>3. Prohibited redistribution</h2>
       <p>You may not copy, resell, share, sublicense, publish or otherwise redistribute the product or your access to it, and may not attempt to reverse engineer or circumvent licensing.</p>
       <h2>4. Intellectual property</h2>
