@@ -12,6 +12,7 @@ export type SettleResult = "fulfilled" | "underpaid" | "mismatch" | "not_complet
  */
 export async function settleOrder(order: OrderRow, p: PaymentSnapshot): Promise<SettleResult> {
   if (p.status !== "COMPLETED") return "not_completed";
+  if (order.order_status === "confirmed") return "fulfilled"; // already issued (or deleted on purpose): never issue twice
   const verdict = matchOrder(p, order);
   if (verdict !== "ok") {
     await supabaseAdmin().from("orders")

@@ -1,161 +1,102 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { licenseState, type LicenseRow } from "@/lib/licensing/service";
-import {
-  confirmOrderAction, createLicenseAction, extendLicenseAction, publishProductAction,
-  resetAccountAction, setLicenseStatusAction, setTicketStatusAction, syncOrderAction,
-} from "./actions";
+import { licenseState } from "@/lib/licensing/service";
+import { site } from "@/lib/config/site";
+import { Badge, EmptyState, FlashBanner, OrderBadge, PageHead, Stat, fmtDateTime, relDays, type AdminSearch } from "@/components/admin/ui";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-/** Admin list rows never include the key hash or ciphertext. */
-type AdminLicense = Omit<LicenseRow, "key_hash" | "key_ciphertext">;
-
-const fmt = (d?: string | null) => (d ? new Date(d).toISOString().slice(0, 16).replace("T", " ") : "—");
-const th = "py-2 pr-4 text-xs font-medium uppercase tracking-wider text-muted";
-const td = "py-2 pr-4 align-top";
-const inp = "rounded-lg border border-line bg-bg px-3 py-2 text-sm";
-const mini = "rounded-lg border border-line px-2.5 py-1 text-xs hover:border-accent/50";
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="card overflow-x-auto" aria-label={title}>
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-export default async function Page({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error: actionError } = await searchParams;
-  const admin = await requireAdmin();
+export default async function Page({ searchParams }: { searchParams: Promise<AdminSearch> }) {
+  const sp = await searchParams;
+  await requireAdmin();
   const db = supabaseAdmin();
-  const [orders, lics, products, tickets] = await Promise.all([
-    db.from("orders").select("*").order("created_at", { ascending: false }).limit(100),
-    db.from("licenses").select("id,license_ref,customer_email,plan,expiration_date,status,mt5_account,activation_status,key_prefix,created_at,start_date").order("created_at", { ascending: false }).limit(200),
-    db.from("products").select("*").order("created_at", { ascending: false }).limit(20),
-    db.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(50),
+  const [orders, lics, tickets, product] = await Promise.all([
+    db.from("orders").select("order_id,customer_email,plan,months,amount_usd,order_status,created_at").order("created_at", { ascending: false }).limit(500),
+    db.from("licenses").select("id,license_ref,customer_email,plan,expiration_date,status").order("created_at", { ascending: false }).limit(1000),
+    db.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "open"),
+    db.from("products").select("version,storage_path,created_at").eq("is_current", true).maybeSingle(),
   ]);
   const dbError = orders.error?.message || lics.error?.message;
-  const licenses = (lics.data ?? []) as unknown as AdminLicense[];
-  const customers = Array.from(new Set(licenses.map((l) => l.customer_email)));
+  const o = orders.data ?? [];
+  const l = lics.data ?? [];
+  const now = Date.now();
+  const paid = o.filter((x) => x.order_status === "confirmed");
+  const revenue = paid.reduce((s, x) => s + Number(x.amount_usd || 0), 0);
+  const active = l.filter((x) => licenseState(x) === "active");
+  const expiring = l.filter((x) => x.plan === "monthly" && licenseState(x) === "active" && x.expiration_date && new Date(x.expiration_date).getTime() - now < 7 * 86_400_000);
+  const review = o.filter((x) => x.order_status === "payment_detected");
+  const awaiting = o.filter((x) => x.order_status === "pending");
+  const customers = new Set([...l.map((x) => x.customer_email.toLowerCase()), ...o.map((x) => x.customer_email.toLowerCase())]).size;
+  const openTickets = tickets.count ?? 0;
+
+  const checks = [
+    { ok: !dbError, label: "Database connected" },
+    { ok: !!process.env.CRYPTO_PAYMENT_API_KEY, label: "CryptoPayr key set" },
+    { ok: !/localhost|127\.0\.0\.1/.test(site.url), label: "Website address is not localhost" },
+    { ok: !!process.env.EA_SECRET_SALT, label: "EA key salt set" },
+    { ok: !!product.data, label: "EA file published for customers" },
+  ];
 
   return (
-    <div className="container-x space-y-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">Admin</h1>
-        <div className="flex items-center gap-3 text-sm text-muted">
-          <span>Signed in as {admin.email}</span>
-          <form action="/auth/signout" method="post"><button className="btn btn-ghost !py-1.5 !text-xs">Sign out</button></form>
+    <>
+      <PageHead title="Overview" text="Everything about your 3MIN SCALP business in one place." />
+      <FlashBanner ok={sp.ok} info={sp.info} error={sp.error} />
+      {dbError && <p role="alert" className="mb-5 rounded-2xl border border-red-400/40 bg-red-400/10 p-4 text-sm text-red-300">Database problem: {dbError}. If it mentions a missing table, run the SQL files from supabase/migrations in the Supabase SQL Editor.</p>}
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <Stat label="Revenue (paid orders)" value={`$${revenue.toFixed(2)}`} hint={`${paid.length} paid order${paid.length === 1 ? "" : "s"}`} tone="good" />
+        <Stat label="Active licenses" value={active.length} hint={`${l.length} in total`} />
+        <Stat label="Customers" value={customers} />
+        <Stat label="Expiring in 7 days" value={expiring.length} tone={expiring.length ? "warn" : "neutral"} />
+        <Stat label="Orders to check" value={review.length + awaiting.length} hint={`${review.length} need review`} tone={review.length ? "warn" : "neutral"} />
+        <Stat label="Open tickets" value={openTickets} tone={openTickets ? "warn" : "neutral"} />
+      </div>
+
+      <section className="mt-6 rounded-3xl border border-line bg-bg2 p-5" aria-label="Needs attention">
+        <h2 className="text-lg font-semibold">Needs your attention</h2>
+        <ul className="mt-3 space-y-2 text-sm">
+          {review.length > 0 && <li><Link className="flex items-center justify-between rounded-2xl border border-line bg-bg px-4 py-3 active:bg-forest/40" href="/admin/orders?status=review">Payments that need a manual check<Badge tone="warn">{review.length}</Badge></Link></li>}
+          {expiring.length > 0 && <li><Link className="flex items-center justify-between rounded-2xl border border-line bg-bg px-4 py-3 active:bg-forest/40" href="/admin/licenses?state=active">Monthly licenses ending within 7 days<Badge tone="warn">{expiring.length}</Badge></Link></li>}
+          {openTickets > 0 && <li><Link className="flex items-center justify-between rounded-2xl border border-line bg-bg px-4 py-3 active:bg-forest/40" href="/admin/support">Open support tickets<Badge tone="warn">{openTickets}</Badge></Link></li>}
+          {!product.data && <li><Link className="flex items-center justify-between rounded-2xl border border-line bg-bg px-4 py-3 active:bg-forest/40" href="/admin/downloads">Publish your EA so customers can download it<Badge tone="warn">To do</Badge></Link></li>}
+          {review.length + expiring.length + openTickets === 0 && product.data && <li className="text-muted">Nothing needs attention right now.</li>}
+        </ul>
+      </section>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <section className="rounded-3xl border border-line bg-bg2 p-5" aria-label="Recent orders">
+          <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Recent orders</h2><Link href="/admin/orders" className="text-sm text-accent">See all</Link></div>
+          {o.length === 0 ? <div className="mt-3"><EmptyState title="No orders yet" text="Orders appear here as soon as someone starts a checkout." /></div> : (
+            <ul className="mt-3 divide-y divide-line">
+              {o.slice(0, 6).map((x) => (
+                <li key={x.order_id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0"><p className="truncate text-sm font-medium">{x.customer_email}</p><p className="text-xs text-muted">{x.plan}{x.months > 1 ? ` ×${x.months}` : ""} · ${x.amount_usd} · {fmtDateTime(x.created_at)}</p></div>
+                  <OrderBadge status={x.order_status} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <div className="space-y-6">
+          <section className="rounded-3xl border border-line bg-bg2 p-5" aria-label="Current EA">
+            <h2 className="text-lg font-semibold">EA customers download</h2>
+            {product.data ? (
+              <p className="mt-2 text-sm text-muted">Version <span className="font-semibold text-ink">{product.data.version}</span> · <span className="font-mono text-xs">{product.data.storage_path}</span><br />Published {relDays(product.data.created_at)}</p>
+            ) : <p className="mt-2 text-sm text-muted">Nothing published yet.</p>}
+            <Link href="/admin/downloads" className="btn btn-ghost mt-4 w-full">Manage EA files</Link>
+          </section>
+          <section className="rounded-3xl border border-line bg-bg2 p-5" aria-label="Setup check">
+            <h2 className="text-lg font-semibold">Setup check</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {checks.map((c) => <li key={c.label} className="flex items-center gap-2"><span className={c.ok ? "text-accent" : "text-amber-300"} aria-hidden="true">{c.ok ? "✓" : "!"}</span><span className={c.ok ? "" : "text-amber-200"}>{c.label}</span></li>)}
+            </ul>
+          </section>
         </div>
       </div>
-
-      {dbError && (
-        <p role="alert" className="rounded-xl border border-red-400/40 bg-red-400/10 p-4 text-sm text-red-300">
-          Database problem: {dbError}. If it mentions a missing table, run supabase/migrations/001_init.sql in the Supabase SQL Editor.
-        </p>
-      )}
-      {actionError && (
-        <p role="alert" className="rounded-xl border border-red-400/40 bg-red-400/10 p-4 text-sm text-red-300">
-          Action failed: {actionError}
-        </p>
-      )}
-      <div className="grid gap-4 sm:grid-cols-4">
-        {[["Orders", orders.data?.length ?? 0], ["Customers", customers.length], ["Licenses", licenses.length], ["Active", licenses.filter((l) => licenseState(l) === "active").length]].map(([k, v]) => (
-          <div key={k as string} className="card"><p className="text-xs uppercase tracking-wider text-muted">{k}</p><p className="mt-2 text-2xl font-bold">{v}</p></div>
-        ))}
-      </div>
-
-      <Section title="Orders">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead><tr><th className={th}>Order</th><th className={th}>Customer</th><th className={th}>Plan</th><th className={th}>Amount</th><th className={th}>Payment</th><th className={th}>Date</th><th className={th}></th></tr></thead>
-          <tbody>
-            {(orders.data ?? []).length === 0 && <tr><td colSpan={7} className="py-6 text-muted">No orders yet.</td></tr>}
-            {(orders.data ?? []).map((o) => (
-              <tr key={o.order_id} className="border-t border-line">
-                <td className={`${td} font-mono text-xs`}>{o.order_id}</td><td className={td}>{o.customer_email}</td><td className={td}>{o.plan}{o.months > 1 ? ` ×${o.months}` : ""}</td>
-                <td className={td}>${o.amount_usd} {o.coin}</td><td className={td}>{o.payment_status}</td><td className={td}>{fmt(o.created_at)}</td>
-                <td className={td}>
-                  {o.order_status !== "confirmed" && o.order_status !== "refunded" && (
-                    <div className="flex flex-wrap gap-2">
-                    {o.provider_ref && <form action={syncOrderAction}><input type="hidden" name="orderId" value={o.order_id} /><button className={mini}>Check with CryptoPayr</button></form>}
-                    <form action={confirmOrderAction}><input type="hidden" name="orderId" value={o.order_id} />
-                      <button className={mini} title="Only after verifying the payment on-chain">Confirm paid &amp; issue license</button></form>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Section>
-
-      <Section title="Licenses">
-        <form action={createLicenseAction} className="mb-6 flex flex-wrap items-end gap-3">
-          <label className="text-xs text-muted">Customer email<input name="email" type="email" required className={`${inp} mt-1 block`} /></label>
-          <label className="text-xs text-muted">Plan<select name="plan" className={`${inp} mt-1 block`}><option value="monthly">Monthly (30 days)</option><option value="lifetime">Lifetime</option></select></label>
-          <button className="btn btn-primary !py-2">Create license</button>
-        </form>
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead><tr><th className={th}>License</th><th className={th}>Customer</th><th className={th}>Plan</th><th className={th}>Expires</th><th className={th}>State</th><th className={th}>MT5 account</th><th className={th}>Actions</th></tr></thead>
-          <tbody>
-            {licenses.length === 0 && <tr><td colSpan={7} className="py-6 text-muted">No licenses yet.</td></tr>}
-            {licenses.map((l) => (
-              <tr key={l.id} className="border-t border-line">
-                <td className={`${td} font-mono text-xs`}>{l.license_ref}</td><td className={td}>{l.customer_email}</td><td className={td}>{l.plan}</td>
-                <td className={td}>{l.plan === "lifetime" ? "Lifetime" : fmt(l.expiration_date)}</td><td className={td}>{licenseState(l)}</td>
-                <td className={`${td} font-mono text-xs`}>{l.mt5_account ?? "—"}</td>
-                <td className={`${td} flex flex-wrap gap-2`}>
-                  {l.status === "active"
-                    ? <form action={setLicenseStatusAction}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="suspended" /><button className={mini}>Suspend</button></form>
-                    : <form action={setLicenseStatusAction}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="active" /><button className={mini}>Reactivate</button></form>}
-                  {l.status !== "revoked" && <form action={setLicenseStatusAction}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="revoked" /><button className={mini}>Revoke</button></form>}
-                  {l.plan === "monthly" && <form action={extendLicenseAction}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="days" value="30" /><button className={mini}>+30 days</button></form>}
-                  {l.mt5_account && <form action={resetAccountAction}><input type="hidden" name="id" value={l.id} /><button className={mini}>Unbind account</button></form>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="mt-4 text-xs text-muted">Keys are stored hashed + encrypted. Customers see their own key in their dashboard.</p>
-      </Section>
-
-      <Section title="Customers">
-        {customers.length === 0 ? <p className="text-sm text-muted">No customers yet.</p> : (
-          <ul className="grid gap-1 text-sm sm:grid-cols-2">{customers.map((c) => <li key={c}>{c} <span className="text-muted">· {licenses.filter((l) => l.customer_email === c).length} license(s)</span></li>)}</ul>
-        )}
-      </Section>
-
-      <Section title="Products (EX5 downloads)">
-        <p className="mb-4 text-sm text-muted">1) Upload the EX5 to the PRIVATE Supabase Storage bucket <code>ea-files</code>. 2) Enter its path and version here.</p>
-        <form action={publishProductAction} className="mb-6 flex flex-wrap items-end gap-3">
-          <label className="text-xs text-muted">Version<input name="version" required placeholder="1.0.0" className={`${inp} mt-1 block`} /></label>
-          <label className="text-xs text-muted">File path in bucket<input name="path" required placeholder="3MIN_SCALP_v1.0.0.ex5" className={`${inp} mt-1 block`} /></label>
-          <label className="text-xs text-muted">Notes<input name="notes" className={`${inp} mt-1 block`} /></label>
-          <button className="btn btn-primary !py-2">Publish as current</button>
-        </form>
-        <table className="w-full min-w-[480px] text-left text-sm">
-          <thead><tr><th className={th}>Version</th><th className={th}>File</th><th className={th}>Current</th><th className={th}>Date</th></tr></thead>
-          <tbody>{(products.data ?? []).map((p) => <tr key={p.id} className="border-t border-line"><td className={td}>{p.version}</td><td className={`${td} font-mono text-xs`}>{p.storage_path}</td><td className={td}>{p.is_current ? "Yes" : ""}</td><td className={td}>{fmt(p.created_at)}</td></tr>)}</tbody>
-        </table>
-      </Section>
-
-      <Section title="Support tickets">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead><tr><th className={th}>Customer</th><th className={th}>Subject</th><th className={th}>Message</th><th className={th}>Status</th><th className={th}></th></tr></thead>
-          <tbody>
-            {(tickets.data ?? []).length === 0 && <tr><td colSpan={5} className="py-6 text-muted">No tickets.</td></tr>}
-            {(tickets.data ?? []).map((t) => (
-              <tr key={t.id} className="border-t border-line">
-                <td className={td}>{t.customer_email}</td><td className={td}>{t.subject}</td><td className={`${td} max-w-xs whitespace-pre-wrap text-muted`}>{t.message}</td><td className={td}>{t.status}</td>
-                <td className={td}><form action={setTicketStatusAction} className="flex gap-2"><input type="hidden" name="id" value={t.id} /><input type="hidden" name="status" value={t.status === "closed" ? "open" : "closed"} /><button className={mini}>{t.status === "closed" ? "Reopen" : "Close"}</button></form></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Section>
-    </div>
+    </>
   );
 }
