@@ -17,7 +17,7 @@ function Field({ label, value, set, step = "any", hint }: { label: string; value
 function Result({ label, value, big }: { label: string; value: string; big?: boolean }) {
   return (
     <div className="rounded-xl border border-line bg-bg p-4">
-      <p className="text-[11px] uppercase tracking-wider text-muted">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted">{label}</p>
       <p className={`mt-1 font-bold text-accent ${big ? "text-3xl" : "text-xl"}`}>{value}</p>
     </div>
   );

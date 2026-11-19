@@ -7,9 +7,29 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: #080d12;
-  color: #f5f7fa;
+  background: #0f1512;
+  background-image: radial-gradient(90% 40% at 50% -5%, rgba(244,197,122,0.07), transparent 70%);
+  background-repeat: no-repeat;
+  color: #f7f3ea;
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: rgba(0, 229, 155, 0.18);
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+h1 { line-height: 1.08; }
+h2, h3 { line-height: 1.15; }
+p { text-wrap: pretty; }
+
+/* 16px inputs on phones: prevents the zoom-in jump on iPhone and is easier to read */
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px !important; }
 }
 
 :focus-visible {
@@ -20,23 +40,23 @@ body {
 
 @layer components {
   .container-x { @apply mx-auto w-full max-w-6xl px-5 sm:px-8; }
-  .section { @apply py-16 sm:py-24; }
+  .section { @apply py-14 sm:py-24; }
   .card {
-    @apply rounded-2xl border border-line bg-bg2/70 p-6 transition duration-300;
-    background-image: linear-gradient(180deg, rgba(0,229,155,0.04), transparent 60%);
+    @apply rounded-3xl border border-line bg-bg2/80 p-5 shadow-soft transition duration-300 sm:p-7;
+    background-image: linear-gradient(180deg, rgba(244,197,122,0.05), transparent 55%);
   }
   .card-hover:hover { @apply -translate-y-0.5 border-accent/40 shadow-glow; }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition duration-200 active:scale-[0.98];
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold transition duration-200 active:scale-[0.97];
   }
   .btn-primary { @apply bg-accent text-bg hover:shadow-glow hover:brightness-110; }
   .btn-ghost { @apply border border-line text-ink hover:border-accent/50 hover:bg-forest/30; }
-  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.2em] text-accent; }
-  .prose-legal h2 { @apply mt-10 text-xl font-semibold text-ink; }
-  .prose-legal p, .prose-legal li { @apply mt-3 leading-relaxed text-muted; }
+  .eyebrow { @apply inline-flex items-center gap-2 rounded-full bg-forest/50 px-3 py-1 text-[13px] font-medium text-accent; }
+  .prose-legal h2 { @apply mt-10 text-2xl font-semibold text-ink; }
+  .prose-legal p, .prose-legal li { @apply mt-3 text-[17px] leading-[1.75] text-muted; }
   .prose-legal ul { @apply list-disc pl-6; }
   .gradient-text {
-    background: linear-gradient(90deg, #f5f7fa, #00e59b, #f5f7fa);
+    background: linear-gradient(90deg, #f7f3ea, #00e59b, #f7f3ea);
     background-size: 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;

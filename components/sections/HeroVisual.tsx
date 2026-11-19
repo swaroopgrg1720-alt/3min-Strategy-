@@ -16,7 +16,7 @@ export function HeroVisual() {
           <div className="flex items-center gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-line" /><span className="h-2.5 w-2.5 rounded-full bg-line" /><span className="h-2.5 w-2.5 rounded-full bg-line" />
           </div>
-          <span className="text-[11px] font-semibold tracking-wider text-muted">MT5-STYLE INTERFACE · CONCEPT</span>
+          <span className="text-xs font-semibold tracking-wider text-muted">MT5-STYLE INTERFACE · CONCEPT</span>
           <DemoBadge />
         </div>
         <div className="flex gap-1 border-b border-line px-3 py-2 text-xs font-semibold">
@@ -26,7 +26,7 @@ export function HeroVisual() {
           <span className="ml-auto rounded-md px-2.5 py-1 text-muted">M3</span>
         </div>
         <svg viewBox="0 0 320 190" className="w-full" role="img" aria-label="Concept candlestick chart with buy and sell markers">
-          {[40, 80, 120, 160].map((y) => (<line key={y} x1="0" x2="320" y1={y} y2={y} stroke="#1B2A2A" strokeWidth="1" />))}
+          {[40, 80, 120, 160].map((y) => (<line key={y} x1="0" x2="320" y1={y} y2={y} stroke="#2A352E" strokeWidth="1" />))}
           {candles.map(([x, hi, lo, close, up], i) => {
             const top = Math.min(hi, lo) + 0;
             const color = up ? "#00E59B" : "#F0616D";
@@ -41,13 +41,13 @@ export function HeroVisual() {
           <g aria-label="Buy marker"><path d="M96 150 l6 -10 l6 10 z" fill="#00E59B" /><text x="102" y="164" textAnchor="middle" fontSize="8" fill="#00E59B">BUY</text></g>
           <g aria-label="Sell marker"><path d="M228 26 l6 10 l6 -10 z" fill="#F0616D" /><text x="234" y="20" textAnchor="middle" fontSize="8" fill="#F0616D">SELL</text></g>
         </svg>
-        <div className="grid grid-cols-3 gap-px border-t border-line bg-line text-center text-[11px]">
+        <div className="grid grid-cols-3 gap-px border-t border-line bg-line text-center text-xs">
           <div className="bg-bg2 px-2 py-3"><p className="text-muted">Algo Trading</p><p className="mt-0.5 font-semibold text-accent">ENABLED</p></div>
           <div className="bg-bg2 px-2 py-3"><p className="text-muted">Mode</p><p className="mt-0.5 font-semibold text-ink">Concept</p></div>
           <div className="bg-bg2 px-2 py-3"><p className="text-muted">Platform</p><p className="mt-0.5 font-semibold text-ink">MT5</p></div>
         </div>
       </div>
-      <figcaption className="mt-3 text-center text-[11px] font-semibold uppercase tracking-wider text-amber-300/90">
+      <figcaption className="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-amber-300/90">
         Design visualization — not historical or verified performance
       </figcaption>
     </figure>

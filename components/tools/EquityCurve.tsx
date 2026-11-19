@@ -12,12 +12,12 @@ export function EquityCurve({ curve }: { curve: Stats["curve"] }) {
   const last = curve[curve.length - 1].equity;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Equity curve of cumulative profit and loss, ending at ${last}`} className="h-auto w-full">
-      <line x1={P} x2={W - P} y1={zero} y2={zero} stroke="#1B2A2A" strokeDasharray="4 4" />
+      <line x1={P} x2={W - P} y1={zero} y2={zero} stroke="#2A352E" strokeDasharray="4 4" />
       <polyline points={`${x(0)},${zero} ${pts} ${x(curve.length - 1)},${zero}`} fill="rgba(0,229,155,0.08)" stroke="none" />
       <polyline points={pts} fill="none" stroke="#00E59B" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      <text x={P} y={14} fill="#89949F" fontSize="11">{max.toFixed(0)}</text>
-      <text x={P} y={H - 8} fill="#89949F" fontSize="11">{min.toFixed(0)}</text>
-      <text x={W - P} y={14} fill="#89949F" fontSize="11" textAnchor="end">{curve.length} trades</text>
+      <text x={P} y={14} fill="#AEB8B0" fontSize="11">{max.toFixed(0)}</text>
+      <text x={P} y={H - 8} fill="#AEB8B0" fontSize="11">{min.toFixed(0)}</text>
+      <text x={W - P} y={14} fill="#AEB8B0" fontSize="11" textAnchor="end">{curve.length} trades</text>
     </svg>
   );
 }

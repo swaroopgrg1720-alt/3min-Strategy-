@@ -14,7 +14,7 @@ function EquityCurve({ data }: { data: number[] }) {
       <defs>
         <linearGradient id="eq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#00E59B" stopOpacity="0.3" /><stop offset="1" stopColor="#00E59B" stopOpacity="0" /></linearGradient>
       </defs>
-      {[0.25, 0.5, 0.75].map((f) => (<line key={f} x1="0" x2={w} y1={h * f} y2={h * f} stroke="#1B2A2A" />))}
+      {[0.25, 0.5, 0.75].map((f) => (<line key={f} x1="0" x2={w} y1={h * f} y2={h * f} stroke="#2A352E" />))}
       <path d={`${line} L${w} ${h} L0 ${h} Z`} fill="url(#eq)" />
       <path d={line} pathLength={1} className="draw-line" fill="none" stroke="#00E59B" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
@@ -54,7 +54,7 @@ export function PerformanceDashboard({ data }: { data: PerformanceData | null })
             <h3 className="font-semibold">Equity curve</h3><DemoBadge variant="demo" />
           </div>
           <EquityCurve data={data.equityCurve} />
-          <p className="mt-2 text-[11px] uppercase tracking-wider text-muted">Illustrative data — not actual performance</p>
+          <p className="mt-2 text-xs uppercase tracking-wider text-muted">Illustrative data — not actual performance</p>
         </div>
         <div className="card">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -72,7 +72,7 @@ export function PerformanceDashboard({ data }: { data: PerformanceData | null })
               ))}
             </tbody>
           </table>
-          <p className="mt-3 text-[11px] uppercase tracking-wider text-muted">Demo data — for preview only</p>
+          <p className="mt-3 text-xs uppercase tracking-wider text-muted">Demo data — for preview only</p>
         </div>
       </div>
     </div>

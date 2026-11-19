@@ -39,7 +39,7 @@ export default async function Page() {
       <dl className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cards.map(([k, v]) => (
           <div key={k} className="rounded-2xl border border-line bg-bg p-4">
-            <dt className="text-[11px] uppercase tracking-wider text-muted">{k}</dt>
+            <dt className="text-xs uppercase tracking-wider text-muted">{k}</dt>
             <dd className="mt-1.5 truncate text-lg font-bold">{v}</dd>
           </div>
         ))}

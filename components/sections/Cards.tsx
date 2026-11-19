@@ -51,7 +51,7 @@ export function MarketCards() {
         <article key={m.symbol} className="card card-hover" data-reveal>
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-bold tracking-wide">{m.symbol}</h3>
-            <span className="rounded-md border border-line px-2 py-0.5 text-[10px] font-semibold tracking-wider text-muted">SUPPORTED</span>
+            <span className="rounded-md border border-line px-2 py-0.5 text-xs font-semibold tracking-wider text-muted">SUPPORTED</span>
           </div>
           <p className="mt-2 text-sm text-muted">{m.desc}</p>
           <svg viewBox="0 0 100 50" className="mt-6 h-24 w-full" role="img" aria-label={`Decorative ${m.symbol} graphic, not real price data`}>
@@ -59,7 +59,7 @@ export function MarketCards() {
             <path d={`${m.path} L100 50 L0 50 Z`} fill="url(#mk)" opacity="0.25" />
             <defs><linearGradient id="mk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#00E59B" /><stop offset="1" stopColor="#00E59B" stopOpacity="0" /></linearGradient></defs>
           </svg>
-          <p className="mt-3 text-[10px] uppercase tracking-wider text-muted/80">Decorative graphic — not price data</p>
+          <p className="mt-3 text-xs uppercase tracking-wider text-muted/80">Decorative graphic — not price data</p>
         </article>
       ))}
     </div>

@@ -13,7 +13,7 @@ const localNow = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.g
 function Stat({ label, value, tone }: { label: string; value: string; tone?: "good" | "bad" }) {
   return (
     <div className="card !p-4">
-      <p className="text-[11px] uppercase tracking-wider text-muted">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted">{label}</p>
       <p className={`mt-1.5 text-xl font-bold ${tone === "good" ? "text-accent" : tone === "bad" ? "text-red-400" : ""}`}>{value}</p>
     </div>
   );

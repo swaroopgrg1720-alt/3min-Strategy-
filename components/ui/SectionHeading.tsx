@@ -14,8 +14,8 @@ export function SectionHeading({
   return (
     <div className={center ? "mx-auto max-w-2xl text-center" : "max-w-2xl"} data-reveal>
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <Tag className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{title}</Tag>
-      {text && <p className="mt-4 leading-relaxed text-muted">{text}</p>}
+      <Tag className="mt-4 text-[1.9rem] font-bold sm:text-4xl">{title}</Tag>
+      {text && <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted">{text}</p>}
     </div>
   );
 }

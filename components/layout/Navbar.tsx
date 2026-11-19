@@ -58,7 +58,7 @@ export function Navbar() {
           </Link>
           <button
             type="button"
-            className="rounded-lg border border-line p-2 text-ink lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-ink lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
@@ -74,7 +74,7 @@ export function Navbar() {
         <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-40 bg-bg lg:hidden">
           <nav aria-label="Mobile" className="container-x flex h-full flex-col gap-1 overflow-y-auto py-6">
             {site.nav.map((n) => (
-              <Link key={n.href} href={n.href} className="rounded-xl px-4 py-4 text-lg font-medium text-ink hover:bg-forest/30">
+              <Link key={n.href} href={n.href} className="rounded-2xl px-4 py-4 font-display text-xl font-semibold text-ink active:bg-forest/40 hover:bg-forest/30">
                 {n.label}
               </Link>
             ))}

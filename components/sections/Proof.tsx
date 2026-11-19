@@ -24,7 +24,7 @@ export function Testimonials() {
     <div className="mt-10 grid gap-5 md:grid-cols-3">
       {placeholders.map((label) => (
         <figure key={label} className="card border-dashed" aria-label="Placeholder testimonial card">
-          <span className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-300">{label}</span>
+          <span className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-xs font-bold tracking-wider text-amber-300">{label}</span>
           <div className="mt-5 space-y-2" aria-hidden="true">
             <div className="h-2.5 w-full rounded bg-line" /><div className="h-2.5 w-11/12 rounded bg-line" /><div className="h-2.5 w-2/3 rounded bg-line" />
           </div>
@@ -46,7 +46,7 @@ export function FollowSection() {
             {s.href ? (
               <a href={s.href} target="_blank" rel="noopener noreferrer" className="btn btn-ghost !py-2.5"><SocialIcon id={s.id} />{s.label}</a>
             ) : (
-              <span className="btn btn-ghost !py-2.5 cursor-default opacity-70" title={s.placeholder}><SocialIcon id={s.id} />{s.label} <span className="text-[10px] text-muted">{s.placeholder}</span></span>
+              <span className="btn btn-ghost !py-2.5 cursor-default opacity-70" title={s.placeholder}><SocialIcon id={s.id} />{s.label} <span className="text-xs text-muted">{s.placeholder}</span></span>
             )}
           </li>
         ))}

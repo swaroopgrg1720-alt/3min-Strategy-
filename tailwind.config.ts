@@ -5,20 +5,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#080D12",
-        bg2: "#0D151B",
+        bg: "#0F1512",
+        bg2: "#161E19",
         accent: "#00E59B",
-        forest: "#123D32",
-        ink: "#F5F7FA",
-        muted: "#89949F",
-        line: "#1B2A2A",
+        sun: "#F4C57A",
+        forest: "#1D4636",
+        ink: "#F7F3EA",
+        muted: "#AEB8B0",
+        line: "#2A352E",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 40px -10px rgba(0,229,155,0.35)",
+        glow: "0 8px 40px -12px rgba(0,229,155,0.35)",
+        soft: "0 10px 30px -18px rgba(0,0,0,0.6)",
       },
       keyframes: {
         "fade-up": {
