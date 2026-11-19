@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Spinner } from "@/components/ui/Spinner";
 import { MAX_MONTHS, orderTotalUsd, plans, type PlanId } from "@/lib/config/pricing";
 
 const QUICK = [1, 2, 3, 6, 12];
@@ -81,7 +82,7 @@ export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail }:
               <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="mt-2 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" />
             </>
           )}
-          <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? "Redirecting…" : `Pay $${total.toFixed(2)} with crypto`}</button>
+          <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? <><Spinner size={18} /> Taking you to payment…</> : `Pay $${total.toFixed(2)} with crypto`}</button>
           {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
         </form>
         <p className="mt-5 rounded-xl bg-forest/30 p-3 text-xs leading-relaxed text-muted">
