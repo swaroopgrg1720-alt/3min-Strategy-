@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-line/70 bg-bg">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:rounded focus:bg-accent focus:px-3 focus:py-1 focus:text-bg">
         Skip to content
       </a>

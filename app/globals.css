@@ -4,7 +4,13 @@
 
 :root { color-scheme: dark; }
 
-html { scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; }
+@media (hover: hover) and (pointer: fine) { html { scroll-behavior: smooth; } }
+
+/* Touch: no 300ms tap delay, no text selection flash on buttons, momentum scrolling inside menus */
+a, button, summary, label, select, input, [role="button"] { touch-action: manipulation; }
+button, .btn { -webkit-user-select: none; user-select: none; }
+nav, [id="mobile-menu"], [id="app-menu"] { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 body {
   background: #0f1512;
@@ -15,7 +21,6 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: rgba(0, 229, 155, 0.18);
-  text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4 {
@@ -42,14 +47,14 @@ p { text-wrap: pretty; }
   .container-x { @apply mx-auto w-full max-w-6xl px-5 sm:px-8; }
   .section { @apply py-14 sm:py-24; }
   .card {
-    @apply rounded-3xl border border-line bg-bg2/80 p-5 shadow-soft transition duration-300 sm:p-7;
+    @apply rounded-3xl border border-line bg-bg2 p-5 transition-colors duration-150 sm:p-7;
     background-image: linear-gradient(180deg, rgba(244,197,122,0.05), transparent 55%);
   }
-  .card-hover:hover { @apply -translate-y-0.5 border-accent/40 shadow-glow; }
+  .card-hover:hover { @apply border-accent/40; }
   .btn {
-    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold transition duration-200 active:scale-[0.97];
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold transition-[transform,background-color,border-color,filter] duration-150 ease-out active:scale-[0.97] active:brightness-95;
   }
-  .btn-primary { @apply bg-accent text-bg hover:shadow-glow hover:brightness-110; }
+  .btn-primary { @apply bg-accent text-bg hover:brightness-110; }
   .btn-ghost { @apply border border-line text-ink hover:border-accent/50 hover:bg-forest/30; }
   .eyebrow { @apply inline-flex items-center gap-2 rounded-full bg-forest/50 px-3 py-1 text-[13px] font-medium text-accent; }
   .prose-legal h2 { @apply mt-10 text-2xl font-semibold text-ink; }
@@ -64,7 +69,8 @@ p { text-wrap: pretty; }
   }
 }
 
-[data-reveal] { animation: fade-up 0.6s ease-out both; }
+/* Entrance fade only on large screens with a mouse; phones render content instantly */
+@media (min-width: 1024px) and (hover: hover) { [data-reveal] { animation: fade-up 0.5s ease-out both; } }
 
 @keyframes draw { to { stroke-dashoffset: 0; } }
 .draw-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.2s ease-out forwards; }

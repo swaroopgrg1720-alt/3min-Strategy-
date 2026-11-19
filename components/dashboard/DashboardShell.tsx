@@ -56,7 +56,7 @@ export function DashboardShell({ children, email, isAdmin = false }: { children:
 
   return (
     <div className="min-h-screen bg-bg">
-      <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-line bg-bg">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button type="button" aria-label="Toggle menu" aria-expanded={open} aria-controls="app-menu" onClick={() => setOpen((v) => !v)}

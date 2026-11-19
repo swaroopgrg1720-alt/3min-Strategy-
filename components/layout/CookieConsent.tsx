@@ -58,7 +58,7 @@ export function CookieConsent() {
       )}
 
       {ready && !consent && (
-        <div role="dialog" aria-label="Cookie preferences" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-2xl border border-line bg-bg2/95 p-5 shadow-2xl backdrop-blur-xl">
+        <div role="dialog" aria-label="Cookie preferences" className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-2xl border border-line bg-bg2 p-5 shadow-2xl">
           <p className="text-sm text-muted">
             We use optional cookies for analytics and marketing only if you allow them. See our{" "}
             <a href="/privacy" className="text-accent underline">Privacy Policy</a>.

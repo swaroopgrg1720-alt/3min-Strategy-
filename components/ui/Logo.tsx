@@ -1,6 +1,6 @@
 export function LogoMark({ size = 36 }: { size?: number }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src="/logo.png" width={size} height={size} alt="" aria-hidden="true" style={{ width: size, height: size }} />;
+  return <img src="/logo-sm.png" width={size} height={size} alt="" aria-hidden="true" style={{ width: size, height: size }} />;
 }
 
 /** Full logo on desktop; compact mark + short wordmark on mobile. */

@@ -22,7 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
 
       <main className="relative flex flex-1 items-center justify-center px-5 pb-16 pt-4">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl border border-line bg-bg2/80 p-7 shadow-glow backdrop-blur sm:p-10">
+          <div className="rounded-3xl border border-line bg-bg2 p-7 sm:p-10">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-bg" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
             </div>
