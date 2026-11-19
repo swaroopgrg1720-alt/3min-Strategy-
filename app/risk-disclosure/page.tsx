@@ -23,6 +23,7 @@ export default function Page() {
       <p>3MIN SCALP does not guarantee profits, trading success, or protection against losses.</p>
       <p>Any examples, results, backtests, screenshots, statistics, or historical performance presented on this website are provided for informational purposes only and should not be interpreted as a guarantee of future results.</p>
       <p>Past performance is not indicative of future performance. Market conditions can change, and a strategy that performed well under historical conditions may perform differently in live markets.</p>
+      <p><strong>A historical win rate does not automatically mean future profit.</strong> Figures quoted on this website, such as an average win rate of 66% with a 1:2 risk-reward ratio, describe past trades only and are the developer&apos;s own figures, which have not been independently verified. They are averages: individual periods can be much worse, a high win rate can still lose money if losses are larger than wins, and the conditions behind past results may not repeat. Any chart or curve shown on this website is an illustration and not a record of actual account results.</p>
 
       <h2>4. Market &amp; execution conditions</h2>
       <p>Actual trading results may differ significantly from backtested, simulated, or advertised results.</p>

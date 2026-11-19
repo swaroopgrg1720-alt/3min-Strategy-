@@ -1,54 +1,54 @@
-import { DemoBadge } from "@/components/ui/DemoBadge";
+import Link from "next/link";
 
-/** Static, hand-drawn candles. A design visualization only — not market data or performance. */
-const candles = [
-  [30, 150, 120, 140, 1], [52, 140, 110, 125, 0], [74, 130, 100, 115, 1], [96, 120, 95, 105, 1],
-  [118, 125, 98, 118, 0], [140, 112, 85, 92, 1], [162, 100, 78, 95, 0], [184, 98, 70, 80, 1],
-  [206, 88, 62, 70, 1], [228, 78, 55, 72, 0], [250, 74, 48, 56, 1], [272, 62, 40, 50, 1],
-] as const;
+/**
+ * An illustrative rising curve. It is a drawing, NOT account data or a backtest result,
+ * and it is labelled that way. The two headline figures are the developer's own and are not independently verified.
+ */
+const LINE = "M8 176 C40 172 56 150 84 152 S120 132 146 120 S176 122 196 100 S236 86 258 62 S292 36 312 22";
 
 export function HeroVisual() {
   return (
-    <figure className="relative" aria-label="Illustration of a trading interface. Design visualization only.">
+    <figure className="relative" aria-label="Illustration of a rising curve with an average win rate of 66 percent and a 1 to 2 risk-reward ratio. Illustration only, not actual results.">
       <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-accent/10 blur-3xl" aria-hidden="true" />
-      <div className="overflow-hidden rounded-2xl border border-line bg-bg2 shadow-glow">
-        <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-          <div className="flex items-center gap-1.5" aria-hidden="true">
-            <span className="h-2.5 w-2.5 rounded-full bg-line" /><span className="h-2.5 w-2.5 rounded-full bg-line" /><span className="h-2.5 w-2.5 rounded-full bg-line" />
+      <div className="overflow-hidden rounded-3xl border border-line bg-bg2 shadow-glow">
+        <div className="grid grid-cols-2 gap-px bg-line">
+          <div className="bg-bg2 p-5">
+            <p className="text-sm text-muted">Average win rate</p>
+            <p className="mt-1 font-display text-4xl font-bold leading-none text-accent sm:text-5xl">66%</p>
           </div>
-          <span className="text-xs font-semibold tracking-wider text-muted">MT5-STYLE INTERFACE · CONCEPT</span>
-          <DemoBadge />
+          <div className="bg-bg2 p-5">
+            <p className="text-sm text-muted">Risk-reward</p>
+            <p className="mt-1 font-display text-4xl font-bold leading-none sm:text-5xl">1:2</p>
+          </div>
         </div>
-        <div className="flex gap-1 border-b border-line px-3 py-2 text-xs font-semibold">
-          <span className="rounded-md bg-forest/60 px-2.5 py-1 text-accent">EURUSD</span>
-          <span className="rounded-md px-2.5 py-1 text-muted">GBPUSD</span>
-          <span className="rounded-md px-2.5 py-1 text-muted">XAUUSD</span>
-          <span className="ml-auto rounded-md px-2.5 py-1 text-muted">M3</span>
-        </div>
-        <svg viewBox="0 0 320 190" className="w-full" role="img" aria-label="Concept candlestick chart with buy and sell markers">
-          {[40, 80, 120, 160].map((y) => (<line key={y} x1="0" x2="320" y1={y} y2={y} stroke="#2A352E" strokeWidth="1" />))}
-          {candles.map(([x, hi, lo, close, up], i) => {
-            const top = Math.min(hi, lo) + 0;
-            const color = up ? "#00E59B" : "#F0616D";
-            return (
-              <g key={i}>
-                <line x1={x} x2={x} y1={hi + 18} y2={lo - 8} stroke={color} strokeWidth="1.5" />
-                <rect x={x - 5} y={Math.min(close, hi) + 5} width="10" height={Math.max(10, Math.abs(hi - close) + 8)} rx="1.5" fill={color} opacity={up ? 0.9 : 0.75} />
-                <title>{`candle ${i + 1} ${top}`}</title>
-              </g>
-            );
-          })}
-          <g aria-label="Buy marker"><path d="M96 150 l6 -10 l6 10 z" fill="#00E59B" /><text x="102" y="164" textAnchor="middle" fontSize="8" fill="#00E59B">BUY</text></g>
-          <g aria-label="Sell marker"><path d="M228 26 l6 10 l6 -10 z" fill="#F0616D" /><text x="234" y="20" textAnchor="middle" fontSize="8" fill="#F0616D">SELL</text></g>
-        </svg>
-        <div className="grid grid-cols-3 gap-px border-t border-line bg-line text-center text-xs">
-          <div className="bg-bg2 px-2 py-3"><p className="text-muted">Algo Trading</p><p className="mt-0.5 font-semibold text-accent">ENABLED</p></div>
-          <div className="bg-bg2 px-2 py-3"><p className="text-muted">Mode</p><p className="mt-0.5 font-semibold text-ink">Concept</p></div>
-          <div className="bg-bg2 px-2 py-3"><p className="text-muted">Platform</p><p className="mt-0.5 font-semibold text-ink">MT5</p></div>
+
+        <div className="relative px-2 pt-4">
+          <span className="absolute right-4 top-3 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300">Illustration</span>
+          <svg viewBox="0 0 320 200" className="w-full" role="img" aria-label="Illustrative curve rising from left to right">
+            <defs>
+              <linearGradient id="hv-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#00E59B" stopOpacity="0.28" />
+                <stop offset="1" stopColor="#00E59B" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="hv-line" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#00B77A" />
+                <stop offset="1" stopColor="#5CF2BE" />
+              </linearGradient>
+            </defs>
+            {[50, 100, 150].map((y) => <line key={y} x1="0" x2="320" y1={y} y2={y} stroke="#2A352E" strokeOpacity="0.7" strokeDasharray="3 6" />)}
+            <path d={`${LINE} L312 200 L8 200 Z`} fill="url(#hv-fill)" className="hv-area" />
+            <path d={LINE} pathLength={1} fill="none" stroke="url(#hv-line)" strokeWidth="3.5" strokeLinecap="round" className="draw-line" />
+            <g className="hv-dot">
+              <circle r="11" fill="#00E59B" fillOpacity="0.2"><animate attributeName="r" values="8;13;8" dur="2.4s" repeatCount="indefinite" /></circle>
+              <circle r="5" fill="#00E59B" />
+              <animateMotion dur="7s" repeatCount="indefinite" path={LINE} keyPoints="0;1;1" keyTimes="0;0.85;1" calcMode="linear" />
+            </g>
+          </svg>
         </div>
       </div>
-      <figcaption className="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-amber-300/90">
-        Design visualization — not historical or verified performance
+      <figcaption className="mt-3 text-center text-sm leading-relaxed text-amber-300/90">
+        Illustration only, not actual account results. Figures are the developer&apos;s own and not independently verified. A historical win rate does not guarantee future profit.{" "}
+        <Link href="/risk-disclosure" className="underline">Read the Risk Disclosure</Link>
       </figcaption>
     </figure>
   );

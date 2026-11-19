@@ -73,7 +73,9 @@ p { text-wrap: pretty; }
 @media (min-width: 1024px) and (hover: hover) { [data-reveal] { animation: fade-up 0.5s ease-out both; } }
 
 @keyframes draw { to { stroke-dashoffset: 0; } }
-.draw-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.2s ease-out forwards; }
+.draw-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.4s ease-out forwards; }
+.hv-area { animation: hv-fade 2.4s ease-out both; }
+@keyframes hv-fade { from { opacity: 0; } to { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -83,4 +85,5 @@ p { text-wrap: pretty; }
     transition-duration: 0.001ms !important;
   }
   .draw-line { stroke-dashoffset: 0; }
+  .hv-dot { display: none; }
 }
