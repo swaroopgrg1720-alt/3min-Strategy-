@@ -6,8 +6,8 @@ export const metadata: Metadata = { title: "Trading Tools", robots: { index: fal
 export default function Page() {
   return (
     <>
-      <h1 className="text-2xl font-bold">Trading Tools</h1>
-      <p className="mb-6 mt-1 text-sm text-muted">Position sizing, risk/reward, profit/loss and drawdown calculators.</p>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Trading Tools</h1>
+      <p className="mb-6 mt-1.5 text-[15px] text-muted">Calculators that help you size positions and manage risk before you trade.</p>
       <Calculators />
     </>
   );

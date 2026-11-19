@@ -6,8 +6,8 @@ export const metadata: Metadata = { title: "Trading Journal", robots: { index: f
 export default function Page() {
   return (
     <>
-      <h1 className="text-2xl font-bold">Trading Journal</h1>
-      <p className="mb-6 mt-1 text-sm text-muted">Log trades, review your statistics and learn from your results.</p>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Trading Journal</h1>
+      <p className="mb-6 mt-1.5 text-[15px] text-muted">Log your trades, see your real statistics and learn from your results.</p>
       <Journal />
     </>
   );

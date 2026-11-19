@@ -27,7 +27,7 @@ export default async function Page() {
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="font-display text-2xl font-bold sm:text-3xl">Dashboard</h1>
           <p className="mt-1 text-sm text-muted">Your licenses, downloads and trading tools.</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -39,11 +39,19 @@ export default async function Page() {
       <dl className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cards.map(([k, v]) => (
           <div key={k} className="rounded-2xl border border-line bg-bg p-4">
-            <dt className="text-xs uppercase tracking-wider text-muted">{k}</dt>
-            <dd className="mt-1.5 truncate text-lg font-bold">{v}</dd>
+            <dt className="text-sm text-muted">{k}</dt>
+            <dd className="mt-1 truncate font-display text-xl font-semibold">{v}</dd>
           </div>
         ))}
       </dl>
+
+      <nav aria-label="Quick actions" className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[["/dashboard/renew", "Renew or buy", "Add months in a few taps"], ["/dashboard/journal", "Trading journal", "Log and review trades"], ["/dashboard/tools", "Trading tools", "Calculators for risk"], ["/dashboard/support", "Get help", "Message our team"]].map(([href, t, d]) => (
+          <Link key={href} href={href} className="rounded-2xl border border-line bg-bg p-4 active:bg-forest/30">
+            <span className="block font-display font-semibold">{t}</span><span className="mt-0.5 block text-xs text-muted">{d}</span>
+          </Link>
+        ))}
+      </nav>
 
       <div className="mt-8"><LicenseTable licenses={views} /></div>
 
