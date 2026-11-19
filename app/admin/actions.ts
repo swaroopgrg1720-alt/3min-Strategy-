@@ -20,7 +20,7 @@ type Outcome = string | { info: string } | void;
 async function run(f: FormData, okMessage: string, fn: () => Promise<Outcome>): Promise<void> {
   await requireAdmin();
   let failure = "";
-  let outcome: Outcome;
+  let outcome = undefined as Outcome;
   try {
     outcome = await fn();
   } catch (e) {
