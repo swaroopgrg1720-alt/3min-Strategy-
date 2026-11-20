@@ -44,9 +44,9 @@ export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
         <select id="f-state" value={state} onChange={(e) => { setState(e.target.value); setPage(1); }} className={select}>
           <option value="all">All Statuses</option><option value="active">Active</option><option value="expired">Expired</option><option value="suspended">Suspended</option><option value="revoked">Revoked</option>
         </select>
-        <Link href="/pricing" className="btn btn-primary">
+        <Link href="/dashboard/renew" className="btn btn-primary">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>
-          Get / Renew License
+          Buy new license
         </Link>
       </div>
 
@@ -66,7 +66,10 @@ export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
                 <td className="px-4 py-3.5">{l.plan === "lifetime" ? "Lifetime" : dmy(l.expiration_date)}</td>
                 <td className="px-4 py-3.5 font-mono text-xs">{l.mt5_account ?? "Not set"}</td>
                 <td className="px-4 py-3.5"><span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${PILL[l.state]}`}>{l.state}</span></td>
-                <td className="rounded-r-xl px-4 py-3.5">
+                <td className="flex items-center gap-2 rounded-r-xl px-4 py-3.5">
+                  {l.plan === "monthly" && l.state !== "revoked" && (
+                    <Link href={`/dashboard/renew?license=${l.id}`} className="inline-flex h-9 items-center rounded-full bg-accent px-4 text-xs font-semibold text-bg active:brightness-95">Renew</Link>
+                  )}
                   <Link href="/dashboard/license" aria-label={`Open license ${l.license_ref}`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line text-muted transition hover:border-accent/50 hover:text-accent">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 7a4 4 0 1 1-3.9 4.9L4 19v-3h3v-2h2l2.1-2.1A4 4 0 0 1 15 7z" /></svg>
                   </Link>

@@ -58,3 +58,6 @@ The old online check (`/api/license/validate`) is still there if you later want 
 
 ## Multi-month purchases
 Run `supabase/migrations/004_months.sql` once in the Supabase SQL editor. Without it, 1-month and lifetime purchases still work, but orders for 2+ months will fail until it is run.
+
+## Renewals
+Run `supabase/migrations/005_renew.sql` once in the Supabase SQL editor. After that, **Renew** on a license adds the paid months to that same license, and a normal purchase always creates a new license (one license per MT5 account).

@@ -10,8 +10,11 @@ const QUICK = [1, 2, 3, 6, 12];
  * Plan + months (+ email for guests), then redirect to the CryptoPayr checkout.
  * With `dashboard` set, the signed-in account email is used (server-side) and no email is asked for.
  */
-export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail }: { initialPlan: PlanId; dashboard?: boolean; accountEmail?: string }) {
-  const [plan, setPlan] = useState<PlanId>(initialPlan);
+export interface RenewTarget { id: string; ref: string; expires: string | null }
+const dayStr = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail, renew }: { initialPlan: PlanId; dashboard?: boolean; accountEmail?: string; renew?: RenewTarget }) {
+  const [plan, setPlan] = useState<PlanId>(renew ? "monthly" : initialPlan);
   const [months, setMonths] = useState(1);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -24,7 +27,7 @@ export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail }:
     setBusy(true);
     setError("");
     try {
-      const payload = dashboard ? { plan, months, from: "dashboard" } : { plan, months, email };
+      const payload = renew ? { plan: "monthly", months, from: "dashboard", licenseId: renew.id } : dashboard ? { plan, months, from: "dashboard" } : { plan, months, email };
       const r = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok || !d.checkoutUrl) throw new Error(d.error || "Could not start the payment.");
@@ -38,8 +41,17 @@ export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail }:
   return (
     <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
       <section className="card" aria-labelledby="order-summary">
-        <h2 id="order-summary" className="text-lg font-semibold">Choose your license</h2>
-        <div className="mt-5 grid grid-cols-2 gap-2" role="group" aria-label="License type">
+        <h2 id="order-summary" className="text-lg font-semibold">{renew ? "Renew this license" : "Choose your license"}</h2>
+        {renew && (
+          <div className="mt-4 rounded-2xl border border-accent/30 bg-forest/20 p-4">
+            <p className="font-mono text-sm text-accent">{renew.ref}</p>
+            <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div><dt className="text-muted">Expires now</dt><dd className="font-medium">{renew.expires ? dayStr(Date.parse(renew.expires)) : "—"}</dd></div>
+              <div><dt className="text-muted">New expiry</dt><dd className="font-semibold text-accent">{dayStr(Math.max(Date.now(), renew.expires ? Date.parse(renew.expires) : 0) + months * 30 * 86_400_000)}</dd></div>
+            </dl>
+          </div>
+        )}
+        <div className={`mt-5 grid grid-cols-2 gap-2 ${renew ? "hidden" : ""}`} role="group" aria-label="License type">
           {(["monthly", "lifetime"] as PlanId[]).map((id) => (
             <button key={id} type="button" aria-pressed={plan === id} onClick={() => setPlan(id)} className={`btn !py-2.5 ${plan === id ? "btn-primary" : "btn-ghost"}`}>
               {plans[id].name} · {plans[id].priceLabel}
@@ -72,17 +84,19 @@ export function CryptoCheckout({ initialPlan, dashboard = false, accountEmail }:
       </section>
 
       <section className="card" aria-labelledby="pay-title">
-        <h2 id="pay-title" className="text-lg font-semibold">{dashboard ? "Pay from your account" : "Pay with crypto"}</h2>
+        <h2 id="pay-title" className="text-lg font-semibold">{renew ? "Pay to renew" : dashboard ? "Pay from your account" : "Pay with crypto"}</h2>
         <form onSubmit={pay} className="mt-5">
-          {dashboard ? (
-            <p className="text-sm text-muted">License for <span className="text-ink">{accountEmail}</span>. {plan === "monthly" ? "If you already have a monthly license, the time is added to it." : "Lifetime license for this account."}</p>
+          {renew ? (
+            <p className="text-sm text-muted">The time is added to <span className="font-mono text-ink">{renew.ref}</span>, the same license and the same MT5 account. No new license is created.</p>
+          ) : dashboard ? (
+            <p className="text-sm text-muted">This creates a <span className="text-ink">new license</span> (one license works on one MT5 account) for <span className="text-ink">{accountEmail}</span>. {plan === "monthly" ? "To extend a license you already have, use its Renew button instead." : "It never expires."}</p>
           ) : (
             <>
               <label htmlFor="email" className="text-sm text-muted">Email (your license is tied to this address)</label>
               <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="mt-2 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" />
             </>
           )}
-          <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? <><Spinner size={18} /> Taking you to payment…</> : `Pay $${total.toFixed(2)} with crypto`}</button>
+          <button className="btn btn-primary mt-4 w-full disabled:opacity-60" disabled={busy}>{busy ? <><Spinner size={18} /> Taking you to payment…</> : renew ? `Renew for $${total.toFixed(2)}` : `Pay $${total.toFixed(2)} with crypto`}</button>
           {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
         </form>
         <p className="mt-5 rounded-xl bg-forest/30 p-3 text-xs leading-relaxed text-muted">

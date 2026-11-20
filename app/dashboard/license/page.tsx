@@ -10,7 +10,7 @@ export default async function Page() {
   const lics = await myLicenses();
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold">My License</h1><Link href="/dashboard/renew" className="btn btn-primary !py-2">Renew / extend</Link></div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold">My License</h1><Link href="/dashboard/renew" className="btn btn-ghost !py-2">Renew / Buy</Link></div>
       {lics.length === 0 ? (
         <Empty title="No license found" text="Once your payment is confirmed your license appears here. Make sure you signed in with the email you purchased with." />
       ) : (
@@ -26,6 +26,9 @@ export default async function Page() {
                 <div><dt className="text-muted">Expires</dt><dd>{l.plan === "lifetime" ? "Lifetime" : fmt(l.expiration_date)}</dd></div>
                 <div><dt className="text-muted">MT5 account</dt><dd>{l.mt5_account ?? "Not activated yet"}</dd></div>
               </dl>
+              {l.plan === "monthly" && l.state !== "revoked" && (
+                <Link href={`/dashboard/renew?license=${l.id}`} className="btn btn-primary mt-4 w-full sm:w-auto">Renew this license</Link>
+              )}
               <RevealKey licenseId={l.id} boundAccount={l.mt5_account} />
               <p className="mt-3 text-xs text-muted">Keep your key private. It works only on the MT5 account number above. For monthly licenses the key changes after each renewal, so come back here and copy the new one. Contact support to change accounts.</p>
             </div>

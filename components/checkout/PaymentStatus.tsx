@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** Polls the server for the order status (set only by the verified webhook or the owner). */
-export function PaymentStatus({ orderId }: { orderId: string }) {
+export function PaymentStatus({ orderId, renewal = false }: { orderId: string; renewal?: boolean }) {
   const [status, setStatus] = useState("awaiting_payment");
   useEffect(() => {
     let stop = false;
@@ -26,9 +26,9 @@ export function PaymentStatus({ orderId }: { orderId: string }) {
       <p className="text-xs uppercase tracking-wider text-muted">Order <span className="font-mono">{orderId}</span></p>
       {done ? (
         <>
-          <h2 className="mt-3 text-xl font-semibold text-accent">Thank you for purchasing! Payment confirmed</h2>
-          <p className="mt-2 text-sm text-muted">Your license is ready. Sign in with the email you used at checkout to view it.</p>
-          <a className="btn btn-primary mt-5" href="/login?next=/dashboard/license">Sign in to get your key</a>
+          <h2 className="mt-3 text-xl font-semibold text-accent">{renewal ? "Renewed! Payment confirmed" : "Thank you for purchasing! Payment confirmed"}</h2>
+          <p className="mt-2 text-sm text-muted">{renewal ? "Your license has been extended. Open My License and copy your new key, because the key changes with the new expiry date." : "Your license is ready. Sign in with the email you used at checkout to view it."}</p>
+          <a className="btn btn-primary mt-5" href="/login?next=/dashboard/license">{renewal ? "Open My License" : "Sign in to get your key"}</a>
         </>
       ) : review ? (
         <>
