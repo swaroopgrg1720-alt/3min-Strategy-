@@ -40,10 +40,7 @@ export const site = {
   },
   social: [
     { id: "instagram", label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, placeholder: "[INSTAGRAM URL]" },
-    { id: "tiktok", label: "TikTok", href: process.env.NEXT_PUBLIC_TIKTOK_URL, placeholder: "[TIKTOK URL]" },
-    { id: "youtube", label: "YouTube", href: process.env.NEXT_PUBLIC_YOUTUBE_URL, placeholder: "[YOUTUBE URL]" },
-    { id: "telegram", label: "Telegram", href: process.env.NEXT_PUBLIC_TELEGRAM_URL, placeholder: "[TELEGRAM URL]" },
-    { id: "x", label: "X / Twitter", href: process.env.NEXT_PUBLIC_X_URL, placeholder: "[X URL]" },
+    { id: "facebook", label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL, placeholder: "[FACEBOOK URL]" },
   ],
   nav: [
     { href: "/", label: "Home" },

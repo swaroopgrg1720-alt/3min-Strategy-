@@ -31,13 +31,9 @@ export const SocialIcon = ({ id }: { id: string }) => {
   switch (id) {
     case "instagram":
       return (<svg {...p}><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor" /></svg>);
-    case "tiktok":
-      return (<svg {...p}><path d="M14 3v11.5a3.5 3.5 0 11-3.5-3.5" /><path d="M14 3c.4 2.4 2 4 4.5 4.2" /></svg>);
-    case "youtube":
-      return (<svg {...p}><rect x="2.5" y="5.5" width="19" height="13" rx="4" /><path d="M10.5 9.5l4 2.5-4 2.5v-5z" fill="currentColor" /></svg>);
-    case "telegram":
-      return (<svg {...p}><path d="M21 4L3 11l6 2.2L11 20l3-4.5 4.5 3.3L21 4z" /><path d="M9 13.2L21 4" /></svg>);
+    case "facebook":
+      return (<svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" /></svg>);
     default:
-      return (<svg {...p}><path d="M4 4l16 16M20 4L4 20" /></svg>);
+      return null;
   }
 };
