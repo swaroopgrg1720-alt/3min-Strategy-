@@ -12,6 +12,7 @@ const ICONS: Record<string, string[]> = {
   customers: ["M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z", "M2.5 20a6.5 6.5 0 0 1 13 0", "M16 4.5a3.5 3.5 0 0 1 0 6.5", "M18 14a6 6 0 0 1 3.5 6"],
   download: ["M12 4v11", "m7 11 5 5 5-5", "M5 20h14"],
   support: ["M4 13v-1a8 8 0 0 1 16 0v1", "M4 13h3v5H5a1 1 0 0 1-1-1z", "M20 13h-3v5h2a1 1 0 0 0 1-1z", "M17 18c0 2-2 3-5 3"],
+  chat: ["M4 5h16v11H9l-5 4z"],
   site: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M3 12h18", "M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"],
   logout: ["M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4", "M16 8l4 4-4 4", "M20 12H9"],
 };
@@ -30,14 +31,24 @@ export const ADMIN_NAV = [
   { href: "/admin/licenses", label: "Licenses", icon: "licenses" },
   { href: "/admin/customers", label: "Customers", icon: "customers" },
   { href: "/admin/downloads", label: "EA downloads", icon: "download" },
+  { href: "/admin/chat", label: "Live chat", icon: "chat" },
   { href: "/admin/support", label: "Support", icon: "support" },
 ];
 
 export function AdminShell({ children, email }: { children: React.ReactNode; email?: string }) {
   const path = usePathname() ?? "";
   const [open, setOpen] = useState(false);
+  const [chatUnread, setChatUnread] = useState(0);
 
   useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    if (path.startsWith("/admin/login")) return;
+    let live = true;
+    const check = () => { if (document.hidden) return; fetch("/api/admin/chat/unread", { cache: "no-store" }).then((r) => r.json()).then((j) => live && setChatUnread(j.count ?? 0)).catch(() => {}); };
+    check();
+    const id = window.setInterval(check, 15_000);
+    return () => { live = false; window.clearInterval(id); };
+  }, [path]);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -74,6 +85,7 @@ export function AdminShell({ children, email }: { children: React.ReactNode; ema
                 className={`relative flex min-h-[52px] items-center gap-3 rounded-2xl border px-4 text-[15px] font-medium active:bg-forest/50 ${on ? "border-accent bg-forest/40 text-accent" : "border-transparent text-ink"}`}>
                 {on && <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r bg-accent" aria-hidden="true" />}
                 <Icon name={n.icon} />{n.label}
+                {n.icon === "chat" && chatUnread > 0 && <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-bold text-bg">{chatUnread}</span>}
               </Link>
             </li>
           );

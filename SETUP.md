@@ -61,3 +61,10 @@ Run `supabase/migrations/004_months.sql` once in the Supabase SQL editor. Withou
 
 ## Renewals
 Run `supabase/migrations/005_renew.sql` once in the Supabase SQL editor. After that, **Renew** on a license adds the paid months to that same license, and a normal purchase always creates a new license (one license per MT5 account).
+
+
+## Live chat
+1. Supabase → SQL editor → run `supabase/migrations/006_chat.sql` once.
+2. Chat appears as a green bubble on the site. Replies are written in **Admin → Live chat**.
+3. Email alerts (optional): create a free account at resend.com, then in Vercel add `EMAIL_API_KEY` (Resend key) and `EMAIL_FROM` (e.g. `3MIN SCALP <support@yourdomain.com>`, domain must be verified in Resend). You get an email at every address in `ADMIN_EMAILS` when a visitor writes (at most one per 10 minutes per conversation), and visitors who left an email get one when you reply while away.
+4. Without the email variables chat still works; you just won't get alerts, so open Admin → Live chat to check (the menu shows an unread badge).

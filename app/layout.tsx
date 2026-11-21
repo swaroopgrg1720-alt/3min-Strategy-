@@ -5,6 +5,7 @@ import { site } from "@/lib/config/site";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <SiteChrome header={<Navbar />} footer={<Footer />}>{children}</SiteChrome>
+        <ChatWidget />
         <CookieConsent />
       </body>
     </html>
