@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { site } from "@/lib/config/site";
 
-interface Msg { id: string; sender: "visitor" | "agent"; body: string; created_at: string; is_auto?: boolean; pending?: boolean }
+interface Msg { id: string; sender: "visitor" | "agent"; body: string; created_at: string; is_auto?: boolean; pending?: boolean; k?: string }
 
 const KEY = "3ms_chat_token";
 const HIDDEN_ON = ["/admin"];
@@ -35,7 +35,10 @@ const I = {
 };
 
 const Avatar = ({ size = 32 }: { size?: number }) => (
-  <span style={{ width: size, height: size }} className="flex shrink-0 items-center justify-center rounded-full bg-forest font-display text-[11px] font-bold text-accent ring-1 ring-accent/40" aria-hidden="true">3M</span>
+  <span style={{ width: size, height: size }} className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg ring-1 ring-accent/40" aria-hidden="true">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src="/logo-sm.png" alt="" width={size} height={size} style={{ width: size * 0.82, height: size * 0.82 }} />
+  </span>
 );
 
 export function ChatWidget() {
@@ -152,8 +155,11 @@ export function ChatWidget() {
       if (!res.ok) throw new Error(j.error || "Message not sent.");
       if (j.token) { tokenRef.current = j.token; store.set(j.token); }
       setHasThread(true);
-      setMsgs((c) => c.filter((m) => m.id !== temp.id));
-      merge([j.message]);
+      // Swap the instant copy for the saved one in place (same key), so nothing flickers.
+      setMsgs((c) => (c.some((m) => m.id === j.message.id)
+        ? c.filter((m) => m.id !== temp.id)
+        : c.map((m) => (m.id === temp.id ? { ...j.message, k: temp.id } : m))));
+      if (j.message.created_at > lastRef.current) lastRef.current = j.message.created_at;
       if (Array.isArray(j.auto) && j.auto.length) {
         // Show a short "typing" moment so an instant reply does not feel abrupt.
         holdRef.current = true; setTyping(true);
@@ -184,12 +190,12 @@ export function ChatWidget() {
             <div className="chat-scroll min-h-0 flex-1 overflow-y-auto bg-bg">
               <div className="relative bg-gradient-to-b from-forest to-bg px-6 pb-16 pt-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5"><Avatar size={36} /><span className="font-display text-[15px] font-semibold text-ink">{site.name}</span></div>
+                  <div className="flex items-center gap-3"><Avatar size={44} /><span className="text-[15px] font-bold tracking-[0.14em] text-ink">3MIN <span className="text-accent">SCALP</span></span></div>
                   <button type="button" aria-label="Close chat" onClick={() => setOpen(false)} className="-mr-2 flex h-11 w-11 items-center justify-center rounded-full text-ink/80 active:bg-black/20"><Svg d={I.close} size={20} /></button>
                 </div>
                 <h2 className="mt-9 font-display text-[30px] font-semibold leading-[1.15] tracking-tight text-ink">Hi there.<br /><span className="text-ink/70">How can we help?</span></h2>
               </div>
-              <div className="-mt-9 space-y-3 px-4 pb-5">
+              <div className="relative z-10 -mt-9 space-y-3 px-4 pb-5">
                 <button type="button" onClick={goMessages}
                   className="flex w-full items-center justify-between gap-3 rounded-2xl border border-line bg-bg2 px-5 py-4 text-left shadow-lg shadow-black/25 active:bg-forest/40">
                   <span>
@@ -241,15 +247,15 @@ export function ChatWidget() {
                     ? `bg-accent text-bg ${firstOfGroup ? "" : "rounded-tr-lg"} ${lastOfGroup ? "rounded-br-md" : "rounded-br-lg"}`
                     : `border border-line bg-bg2 text-ink ${firstOfGroup ? "" : "rounded-tl-lg"} ${lastOfGroup ? "rounded-bl-md" : "rounded-bl-lg"}`;
                   return (
-                    <div key={m.id} className="chat-msg">
+                    <div key={m.k ?? m.id} className="chat-msg">
                       {newDay && <p className="my-4 text-center text-[12px] font-medium text-muted">{dayOf(m.created_at)}</p>}
                       <div className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"} ${firstOfGroup ? "mt-3" : "mt-1"}`}>
                         {!mine && <div className="w-8 shrink-0">{lastOfGroup && <Avatar size={32} />}</div>}
                         <div className={`flex max-w-[78%] flex-col ${mine ? "items-end" : "items-start"}`}>
-                          <div className={`whitespace-pre-wrap break-words rounded-[18px] px-3.5 py-2.5 text-[15px] leading-[1.45] ${bubble} ${m.pending ? "opacity-60" : ""}`}>{m.body}</div>
+                          <div className={`whitespace-pre-wrap break-words rounded-[18px] px-3.5 py-2.5 text-[15px] leading-[1.45] ${bubble} `}>{m.body}</div>
                           {lastOfGroup && (
                             <span className="mt-1 px-1 text-[11.5px] text-muted">
-                              {m.pending ? "Sending…" : mine ? timeOf(m.created_at) : `${m.is_auto ? "Automatic reply" : "Customer agent"} · ${timeOf(m.created_at)}`}
+                              {mine ? timeOf(m.created_at) : `${m.is_auto ? "Automatic reply" : "Customer agent"} · ${timeOf(m.created_at)}`}
                             </span>
                           )}
                         </div>
