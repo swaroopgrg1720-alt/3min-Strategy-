@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { MAX_BODY, findThread, newToken, hashToken, notifyAdmin, preview, tokenFrom, type ThreadRow } from "@/lib/chat/server";
+import { ACK, faqAnswer } from "@/lib/chat/autoreply";
 import { clientKey, isValidEmail, rateLimit, sanitizeText } from "@/lib/security";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -41,6 +42,24 @@ export async function POST(req: Request) {
     status: "open", last_message_at: msg.data.created_at, last_message_preview: preview(body), unread_admin: (thread.unread_admin ?? 0) + 1, last_visitor_seen_at: new Date().toISOString(),
   }).eq("id", thread.id);
 
+  // Automatic reply: only when no human has answered in the last 3 hours.
+  const auto: unknown[] = [];
+  try {
+    const since = new Date(Date.now() - 3 * 3_600_000).toISOString();
+    const { data: agents } = await db.from("chat_messages").select("*").eq("thread_id", thread.id).eq("sender", "agent").gt("created_at", since).order("created_at", { ascending: false }).limit(20);
+    const list = (agents ?? []) as { body: string; is_auto?: boolean }[];
+    const humanActive = list.some((m) => m.is_auto === false);
+    if (!humanActive) {
+      const answer = faqAnswer(body);
+      const reply = answer ? (list.some((m) => m.body === answer) ? null : answer) : list.length === 0 ? ACK : null;
+      if (reply) {
+        let r = await db.from("chat_messages").insert({ thread_id: thread.id, sender: "agent", body: reply, is_auto: true }).select("*").single();
+        if (r.error) r = await db.from("chat_messages").insert({ thread_id: thread.id, sender: "agent", body: reply }).select("*").single();
+        if (r.data) auto.push(r.data);
+      }
+    }
+  } catch (e) { console.error("autoreply", e); }
+
   await notifyAdmin(thread, body).catch((e) => console.error("notifyAdmin", e));
-  return NextResponse.json({ message: msg.data, ...(token ? { token } : {}) });
+  return NextResponse.json({ message: msg.data, auto, ...(token ? { token } : {}) });
 }

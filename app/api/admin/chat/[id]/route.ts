@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   const db = supabaseAdmin();
   const [t, m] = await Promise.all([
     db.from("chat_threads").select("id,name,email,user_id,status,created_at").eq("id", id).maybeSingle(),
-    db.from("chat_messages").select("id,sender,body,created_at").eq("thread_id", id).order("created_at", { ascending: true }).limit(1000),
+    db.from("chat_messages").select("*").eq("thread_id", id).order("created_at", { ascending: true }).limit(1000),
   ]);
   if (!t.data) return NextResponse.json({ error: "Not found" }, { status: 404 });
   await db.from("chat_threads").update({ unread_admin: 0 }).eq("id", id);

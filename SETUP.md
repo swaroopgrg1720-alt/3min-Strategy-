@@ -68,3 +68,6 @@ Run `supabase/migrations/005_renew.sql` once in the Supabase SQL editor. After t
 2. Chat appears as a green bubble on the site. Replies are written in **Admin → Live chat**.
 3. Email alerts (optional): create a free account at resend.com, then in Vercel add `EMAIL_API_KEY` (Resend key) and `EMAIL_FROM` (e.g. `3MIN SCALP <support@yourdomain.com>`, domain must be verified in Resend). You get an email at every address in `ADMIN_EMAILS` when a visitor writes (at most one per 10 minutes per conversation), and visitors who left an email get one when you reply while away.
 4. Without the email variables chat still works; you just won't get alerts, so open Admin → Live chat to check (the menu shows an unread badge).
+
+### Automatic replies
+Run `supabase/migrations/007_chat_auto.sql` once. Visitors then get an instant, pre-written answer for common questions (price, payment, license, download, renewal, refund, risk) and a "we received your message" note otherwise. Nothing is sent automatically for 3 hours after you reply yourself. Edit the wording in `lib/chat/autoreply.ts`.

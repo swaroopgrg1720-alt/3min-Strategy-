@@ -20,9 +20,9 @@ export async function GET(req: Request) {
   const db = supabaseAdmin();
   const open = url.searchParams.get("open") === "1";
   const after = url.searchParams.get("after");
-  let q = db.from("chat_messages").select("id,sender,body,created_at").eq("thread_id", thread.id).order("created_at", { ascending: true }).limit(500);
+  let q = db.from("chat_messages").select("*").eq("thread_id", thread.id).order("created_at", { ascending: true }).limit(500);
   if (after && !Number.isNaN(Date.parse(after))) q = q.gt("created_at", after);
-  const { data } = open ? await q : { data: [] as { id: string; sender: string; body: string; created_at: string }[] };
+  const { data } = open ? await q : { data: [] as { id: string; sender: string; body: string; created_at: string; is_auto?: boolean }[] };
 
   let unread = thread.unread_visitor;
   if (open) {

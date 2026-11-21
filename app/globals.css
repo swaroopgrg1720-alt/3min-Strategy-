@@ -87,3 +87,15 @@ p { text-wrap: pretty; }
   .draw-line { stroke-dashoffset: 0; }
   .hv-dot { display: none; }
 }
+
+/* Chat widget motion: calm, short, and off for people who prefer reduced motion. */
+@keyframes chat-pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes chat-sheet { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes chat-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes chat-dot { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+.chat-panel { animation: chat-sheet 260ms cubic-bezier(.2,.8,.2,1); }
+@media (min-width: 640px) { .chat-panel { animation: chat-pop 240ms cubic-bezier(.2,.8,.2,1); } }
+.chat-msg { animation: chat-in 220ms ease-out both; }
+.chat-dot { animation: chat-dot 1.2s infinite ease-in-out; }
+.chat-scroll { scrollbar-width: thin; scrollbar-color: #2A352E transparent; overscroll-behavior: contain; }
+@media (prefers-reduced-motion: reduce) { .chat-panel, .chat-msg, .chat-dot { animation: none; } }

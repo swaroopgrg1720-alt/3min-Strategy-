@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Thread { id: string; name: string | null; email: string | null; user_id: string | null; status: "open" | "closed"; last_message_at: string; last_message_preview: string | null; unread_admin: number; created_at: string }
-interface Msg { id: string; sender: "visitor" | "agent"; body: string; created_at: string }
+interface Msg { id: string; sender: "visitor" | "agent"; body: string; created_at: string; is_auto?: boolean }
 
 const ago = (iso: string) => {
   const s = Math.max(1, Math.round((Date.now() - Date.parse(iso)) / 1000));
@@ -143,7 +143,7 @@ export function ChatConsole({ initialId }: { initialId?: string }) {
                 <div key={m.id} className={`flex ${m.sender === "agent" ? "justify-end" : "justify-start"}`}>
                   <div className="max-w-[85%]">
                     <div className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-[15px] leading-snug ${m.sender === "agent" ? "rounded-br-md bg-accent text-bg" : "rounded-bl-md border border-line bg-bg2 text-ink"}`}>{m.body}</div>
-                    <p className={`mt-1 px-1 text-[11px] text-muted ${m.sender === "agent" ? "text-right" : ""}`}>{m.sender === "agent" ? "You" : who(active)} · {full(m.created_at)}</p>
+                    <p className={`mt-1 px-1 text-[11px] text-muted ${m.sender === "agent" ? "text-right" : ""}`}>{m.sender === "agent" ? (m.is_auto ? "Automatic reply" : "You") : who(active)} · {full(m.created_at)}</p>
                   </div>
                 </div>
               ))}
