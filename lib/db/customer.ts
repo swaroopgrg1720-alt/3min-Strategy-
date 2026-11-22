@@ -22,3 +22,31 @@ export async function currentProduct(): Promise<{ version: string; release_notes
     return data ? { version: data.version, release_notes: data.release_notes ?? null, created_at: data.created_at ?? null } : null;
   } catch { return null; }
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const isUuid = (v: string) => UUID.test(v);
+
+export type CustomerLicenseFull = CustomerLicense & { activated_at: string | null; last_validated_at: string | null; state: ReturnType<typeof licenseState> };
+
+/** One of the signed-in customer's licenses with activity details (RLS limits it to their own). */
+export async function myLicenseById(id: string): Promise<CustomerLicenseFull | null> {
+  if (!isUuid(id)) return null;
+  const { data } = await (await supabaseServer()).from("licenses")
+    .select("id,license_ref,plan,expiration_date,status,mt5_account,activation_status,start_date,activated_at,last_validated_at").eq("id", id).maybeSingle();
+  if (!data) return null;
+  const l = data as CustomerLicense & { activated_at: string | null; last_validated_at: string | null };
+  return { ...l, state: licenseState(l) };
+}
+
+export interface PaymentRow { order_id: string; plan: string; amount_usd: number | string; coin: string; network: string; order_status: string; created_at: string; confirmed_at: string | null }
+
+/** Paid orders that created or renewed this license. */
+export async function licensePayments(id: string): Promise<PaymentRow[]> {
+  if (!isUuid(id)) return [];
+  const db = await supabaseServer();
+  const cols = "order_id,plan,amount_usd,coin,network,order_status,created_at,confirmed_at";
+  const states = ["confirmed", "refunded", "payment_detected"];
+  let r = await db.from("orders").select(cols).or(`license_id.eq.${id},renew_license_id.eq.${id}`).in("order_status", states).order("created_at", { ascending: false }).limit(20);
+  if (r.error) r = await db.from("orders").select(cols).eq("license_id", id).in("order_status", states).order("created_at", { ascending: false }).limit(20);
+  return (r.data ?? []) as PaymentRow[];
+}

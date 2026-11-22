@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { currentProduct, myLicenses } from "@/lib/db/customer";
-import { LicenseTable, type LicenseView } from "@/components/dashboard/LicenseTable";
-import { Ico, PageHeader, daysLeft, dmy, type IconName } from "@/components/dashboard/ui";
+import { LicenseCards } from "@/components/dashboard/LicenseCards";
+import { Ico, PageHeader, daysLeft, dmy, type IconName, type LicenseView } from "@/components/dashboard/ui";
 import { OpenChatButton } from "@/components/dashboard/OpenChatButton";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +29,8 @@ export default async function Page() {
     : soon ? { tone: "amber", text: `Your license expires in ${Math.max(nextDays as number, 0)} day${nextDays === 1 ? "" : "s"}. Renew now so trading is not interrupted.` } : null;
 
   const stats: { icon: IconName; label: string; value: string; note?: string }[] = [
-    { icon: "key", label: "Active licenses", value: String(active.length), note: all.length > active.length ? `${all.length} in total` : undefined },
-    { icon: "clock", label: "Next expiry", value: hasLifetime && !next ? "Lifetime" : dmy(next ?? null), note: nextDays !== null && nextDays > 0 ? `${nextDays} days left` : undefined },
+    { icon: "key", label: "Active licenses", value: String(active.length) },
+    { icon: "clock", label: "Plan", value: hasLifetime ? "Lifetime" : monthlyActive.length ? "Monthly" : "None", note: all.length ? `${all.length} license${all.length === 1 ? "" : "s"} in total` : undefined },
     { icon: "chip", label: "MT5 account", value: account ?? "Not set", note: account ? "Key locked to this account" : "Set when you generate your key" },
     { icon: "box", label: "Current EA version", value: product?.version ? `v${product.version.replace(/^v/i, "")}` : "—", note: product?.created_at ? `Released ${dmy(product.created_at)}` : undefined },
   ];
@@ -74,8 +74,8 @@ export default async function Page() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-label="Licenses" className="min-w-0">
-          <h2 className="mb-3 font-display text-lg font-semibold">Your licenses</h2>
-          <LicenseTable licenses={views} />
+          <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-display text-lg font-semibold">Your licenses</h2><Link href="/dashboard/renew" className="text-sm font-semibold text-accent">Buy new ›</Link></div>
+          <LicenseCards licenses={views} />
           {all.length === 0 && (
             <p className="mt-4 text-sm text-muted">Signed in with a different email than your purchase? Use the same email you ordered with, or <Link className="text-accent underline" href="/contact">contact support</Link>.</p>
           )}

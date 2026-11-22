@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
-import type { LicenseState } from "@/components/dashboard/LicenseTable";
+export type LicenseState = "active" | "expired" | "suspended" | "revoked";
+export interface LicenseView {
+  id: string; license_ref: string; plan: "monthly" | "lifetime"; start_date: string;
+  expiration_date: string | null; mt5_account: string | null; state: LicenseState;
+}
+export const dt = (iso: string | null | undefined) => (iso ? `${iso.slice(0, 10).split("-").reverse().join("-")} ${iso.slice(11, 16)} UTC` : "—");
 
 export const dmy = (iso: string | null | undefined) => (iso ? iso.slice(0, 10).split("-").reverse().join("-") : "—");
 export const daysLeft = (iso: string | null | undefined) => (iso ? Math.ceil((Date.parse(iso) - Date.now()) / 86_400_000) : null);
