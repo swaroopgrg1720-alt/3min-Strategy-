@@ -75,3 +75,23 @@ export function Meter({ days, lifetime }: { days: number | null; lifetime?: bool
     </div>
   );
 }
+
+/** Circular days-left dial for the license pass. */
+export function Ring({ days, lifetime }: { days: number | null; lifetime?: boolean }) {
+  const r = 34, c = 2 * Math.PI * r;
+  const pct = lifetime ? 1 : Math.max(0, Math.min(1, (days ?? 0) / 30));
+  const tone = lifetime ? "text-accent" : (days ?? 0) <= 0 ? "text-red-400" : (days ?? 0) <= 7 ? "text-amber-300" : "text-accent";
+  const left = Math.max(days ?? 0, 0);
+  return (
+    <div className="relative h-24 w-24 shrink-0" role="img" aria-label={lifetime ? "Lifetime license" : `${left} days left`}>
+      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90" aria-hidden="true">
+        <circle cx="40" cy="40" r={r} fill="none" stroke="#2A352E" strokeWidth="6" />
+        <circle cx="40" cy="40" r={r} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className={tone} strokeDasharray={c} strokeDashoffset={c * (1 - pct)} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-display text-2xl font-bold leading-none">{lifetime ? "∞" : left}</span>
+        <span className="mt-1 text-[11px] text-muted">{lifetime ? "Lifetime" : (days ?? 0) <= 0 ? "expired" : left === 1 ? "day left" : "days left"}</span>
+      </div>
+    </div>
+  );
+}
