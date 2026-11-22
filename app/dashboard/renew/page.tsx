@@ -4,6 +4,7 @@ import { Empty } from "@/components/dashboard/DashboardShell";
 import { requireUser } from "@/lib/auth";
 import { isPlanId } from "@/lib/config/pricing";
 import { myLicenses } from "@/lib/db/customer";
+import { StatusPill, daysLeft } from "@/components/dashboard/ui";
 
 export const dynamic = "force-dynamic";
 const dmy = (iso: string | null) => (iso ? iso.slice(0, 10).split("-").reverse().join("-") : "—");
@@ -43,10 +44,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
               <li key={l.id} className="rounded-2xl border border-line bg-bg p-4">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-mono text-sm">{l.license_ref}</p>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${l.state === "active" ? "bg-accent/15 text-accent" : "bg-amber-400 text-bg"}`}>{l.state}</span>
+                  <StatusPill state={l.state} />
                 </div>
-                <p className="mt-1 text-sm text-muted">Expires {dmy(l.expiration_date)}{l.mt5_account ? ` · MT5 ${l.mt5_account}` : ""}</p>
-                <Link href={`/dashboard/renew?license=${l.id}`} className="btn btn-primary mt-4 w-full">Renew this license</Link>
+                <p className="mt-1 text-sm text-muted">Expires {dmy(l.expiration_date)}{daysLeft(l.expiration_date) !== null && (daysLeft(l.expiration_date) as number) > 0 ? ` (${daysLeft(l.expiration_date)} days left)` : ""}{l.mt5_account ? ` · MT5 ${l.mt5_account}` : ""}</p>
+                <Link href={`/dashboard/renew?license=${l.id}`} className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-accent text-sm font-semibold text-bg active:brightness-95">Renew this license</Link>
               </li>
             ))}
           </ul>

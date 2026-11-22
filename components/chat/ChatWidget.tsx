@@ -130,6 +130,11 @@ export function ChatWidget() {
   useEffect(() => { if (!open) seen.current = 0; }, [open, tab]);
 
   useEffect(() => {
+    const openChat = () => { setOpen(true); setTab("messages"); };
+    window.addEventListener("3ms:open-chat", openChat);
+    return () => window.removeEventListener("3ms:open-chat", openChat);
+  }, []);
+  useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);

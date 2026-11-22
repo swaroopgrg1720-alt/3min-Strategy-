@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { Ico, StatusPill, daysLeft, dmy } from "@/components/dashboard/ui";
 
 export type LicenseState = "active" | "expired" | "suspended" | "revoked";
 export interface LicenseView {
@@ -14,14 +15,7 @@ export interface LicenseView {
 }
 
 const PAGE = 6;
-const dmy = (iso: string | null) => (iso ? iso.slice(0, 10).split("-").reverse().join("-") : "—");
-const PILL: Record<LicenseState, string> = {
-  active: "bg-accent/15 text-accent",
-  expired: "bg-red-500/80 text-white",
-  suspended: "bg-amber-400 text-bg",
-  revoked: "bg-red-500/80 text-white",
-};
-const select = "w-full rounded-xl border border-accent/40 bg-bg px-4 py-2.5 text-sm text-ink focus:border-accent";
+const select = "min-h-[46px] w-full rounded-xl border border-line bg-bg px-4 text-sm text-ink focus:border-accent focus:outline-none";
 
 export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
   const [plan, setPlan] = useState("all");
@@ -50,7 +44,34 @@ export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
         </Link>
       </div>
 
-      <div className="mt-5 overflow-x-auto">
+      <ul className="mt-4 space-y-3 md:hidden">
+        {slice.map((l) => {
+          const d = l.plan === "monthly" ? daysLeft(l.expiration_date) : null;
+          return (
+            <li key={l.id} className="rounded-2xl border border-line bg-bg p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate font-mono text-[13px] text-ink">{l.license_ref}</p>
+                  <p className="mt-0.5 text-xs capitalize text-muted">{l.plan} plan</p>
+                </div>
+                <StatusPill state={l.state} />
+              </div>
+              <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div><dt className="text-xs text-muted">{l.plan === "lifetime" ? "Access" : "Expires"}</dt><dd className="mt-0.5 font-medium">{l.plan === "lifetime" ? "Lifetime" : dmy(l.expiration_date)}{d !== null && d > 0 ? <span className="text-muted"> · {d}d left</span> : null}</dd></div>
+                <div><dt className="text-xs text-muted">MT5 account</dt><dd className="mt-0.5 font-mono text-[13px] font-medium">{l.mt5_account ?? "Not set"}</dd></div>
+              </dl>
+              <div className="mt-4 flex gap-2">
+                <Link href="/dashboard/license" className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full border border-line text-sm font-semibold text-ink active:bg-forest/40"><Ico name="key" size={18} />License key</Link>
+                {l.plan === "monthly" && l.state !== "revoked" && (
+                  <Link href={`/dashboard/renew?license=${l.id}`} className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-accent text-sm font-semibold text-bg active:brightness-95">Renew</Link>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="mt-5 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[720px] border-separate border-spacing-y-2 text-left text-sm">
           <thead>
             <tr className="text-xs text-muted">
@@ -65,7 +86,7 @@ export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
                 <td className="px-4 py-3.5">{dmy(l.start_date)}</td>
                 <td className="px-4 py-3.5">{l.plan === "lifetime" ? "Lifetime" : dmy(l.expiration_date)}</td>
                 <td className="px-4 py-3.5 font-mono text-xs">{l.mt5_account ?? "Not set"}</td>
-                <td className="px-4 py-3.5"><span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize ${PILL[l.state]}`}>{l.state}</span></td>
+                <td className="px-4 py-3.5"><StatusPill state={l.state} /></td>
                 <td className="flex items-center gap-2 rounded-r-xl px-4 py-3.5">
                   {l.plan === "monthly" && l.state !== "revoked" && (
                     <Link href={`/dashboard/renew?license=${l.id}`} className="inline-flex h-9 items-center rounded-full bg-accent px-4 text-xs font-semibold text-bg active:brightness-95">Renew</Link>
@@ -84,6 +105,12 @@ export function LicenseTable({ licenses }: { licenses: LicenseView[] }) {
           </p>
         )}
       </div>
+
+      {slice.length === 0 && (
+        <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted md:hidden">
+          {licenses.length === 0 ? "No licenses yet. Choose a plan to get started." : "No licenses match these filters."}
+        </p>
+      )}
 
       {pages > 1 && (
         <nav aria-label="Pagination" className="mt-5 flex items-center justify-center gap-2 text-sm">

@@ -38,6 +38,12 @@ export const dashNav = [
   { href: "/dashboard/account", label: "Account", icon: "account" },
 ];
 
+const GROUPS: { title: string; items: { href: string; label: string; icon: string }[] }[] = [
+  { title: "Overview", items: dashNav.slice(0, 3) },
+  { title: "Tools", items: dashNav.slice(3, 7) },
+  { title: "Help", items: dashNav.slice(7) },
+];
+
 export function DashboardShell({ children, email, isAdmin = false }: { children: React.ReactNode; email?: string; isAdmin?: boolean }) {
   const path = usePathname() ?? "";
   const [open, setOpen] = useState(false);
@@ -51,58 +57,86 @@ export function DashboardShell({ children, email, isAdmin = false }: { children:
 
   const name = email ? email.split("@")[0] : "Account";
   const initial = name.charAt(0).toUpperCase() || "A";
-  const items = isAdmin ? [...dashNav, { href: "/admin", label: "Admin Panel", icon: "admin" }] : dashNav;
   const isActive = (href: string) => (href === "/dashboard" ? path === href : path === href || path.startsWith(`${href}/`));
+
+  const link = (n: { href: string; label: string; icon: string }) => {
+    const active = isActive(n.href);
+    return (
+      <li key={n.href}>
+        <Link href={n.href} aria-current={active ? "page" : undefined}
+          className={`relative flex min-h-[46px] items-center gap-3 rounded-xl px-4 text-[15px] font-medium active:bg-forest/50 lg:hover:bg-forest/30 ${active ? "bg-forest/50 text-accent" : "text-ink"}`}>
+          {active && <span className="absolute bottom-2.5 left-0 top-2.5 w-1 rounded-r bg-accent" aria-hidden="true" />}
+          <Icon name={n.icon} />{n.label}
+        </Link>
+      </li>
+    );
+  };
+
+  const menu = (
+    <nav aria-label="Dashboard menu" className="flex h-full flex-col">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-3">
+        {GROUPS.map((g) => (
+          <div key={g.title}>
+            <p className="px-4 pb-1.5 text-xs font-semibold text-muted">{g.title}</p>
+            <ul className="space-y-1">{g.items.map(link)}</ul>
+          </div>
+        ))}
+        {isAdmin && (
+          <div>
+            <p className="px-4 pb-1.5 text-xs font-semibold text-muted">Owner</p>
+            <ul>{link({ href: "/admin", label: "Admin Panel", icon: "admin" })}</ul>
+          </div>
+        )}
+      </div>
+      <div className="border-t border-line p-3">
+        <div className="mb-2 flex items-center gap-3 px-2 py-1" title={email}>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-bg" aria-hidden="true">{initial}</span>
+          <div className="min-w-0"><p className="truncate text-sm font-semibold">{name}</p><p className="truncate text-xs text-muted">{email}</p></div>
+        </div>
+        <form action="/auth/signout" method="post">
+          <button className="flex min-h-[46px] w-full items-center gap-3 rounded-xl px-4 text-[15px] font-medium text-muted active:bg-forest/50 lg:hover:bg-forest/30 lg:hover:text-ink"><Icon name="logout" />Logout</button>
+        </form>
+      </div>
+    </nav>
+  );
 
   return (
     <div className="min-h-screen bg-bg">
       <header className="sticky top-0 z-40 border-b border-line bg-bg">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <button type="button" aria-label="Toggle menu" aria-expanded={open} aria-controls="app-menu" onClick={() => setOpen((v) => !v)}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-accent/50 text-accent transition hover:bg-forest/40 lg:hidden">
+            <button type="button" aria-label="Open menu" aria-expanded={open} aria-controls="app-menu" onClick={() => setOpen(true)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-accent/50 text-accent active:bg-forest/40 lg:hidden">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M5 8h14M5 12h9M5 16h14" /></svg>
             </button>
             <Link href="/dashboard" aria-label="3MIN SCALP dashboard"><Logo /></Link>
           </div>
-          <div className="flex items-center gap-3 rounded-xl border border-line bg-bg2 py-1.5 pl-1.5 pr-4" title={email}>
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-bold text-bg" aria-hidden="true">{initial}</span>
+          <div className="flex items-center gap-2.5 rounded-full border border-line bg-bg2 py-1 pl-1 pr-4" title={email}>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-bold text-bg" aria-hidden="true">{initial}</span>
             <span className="hidden max-w-[160px] truncate text-sm font-medium sm:block">{name}</span>
           </div>
         </div>
       </header>
 
-      {open && <button aria-label="Close menu" className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />}
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button aria-label="Close menu" className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+          <div id="app-menu" role="dialog" aria-label="Dashboard menu" className="absolute inset-y-0 left-0 flex w-[300px] max-w-[85vw] flex-col border-r border-line bg-bg2">
+            <div className="flex items-center justify-between border-b border-line px-4 py-3">
+              <Logo />
+              <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="flex h-11 w-11 items-center justify-center rounded-full text-ink active:bg-forest/40">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              </button>
+            </div>
+            <div className="min-h-0 flex-1">{menu}</div>
+          </div>
+        </div>
+      )}
 
-      <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-6 sm:px-6">
-        <aside id="app-menu" aria-label="Dashboard menu"
-          className={`${open ? "block" : "hidden"} fixed left-4 top-[76px] z-50 w-[270px] rounded-2xl border border-line bg-bg2 p-3 shadow-2xl lg:sticky lg:top-24 lg:z-auto lg:block lg:h-fit lg:w-64 lg:shrink-0 lg:shadow-none`}>
-          <nav>
-            <ul className="space-y-1">
-              {items.map((n) => {
-                const active = isActive(n.href);
-                return (
-                  <li key={n.href}>
-                    <Link href={n.href} aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${active ? "bg-accent font-semibold text-bg" : "text-ink hover:bg-forest/40"}`}>
-                      <Icon name={n.icon} />{n.label}
-                    </Link>
-                  </li>
-                );
-              })}
-              <li className="pt-1">
-                <form action="/auth/signout" method="post">
-                  <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-muted transition hover:bg-forest/40 hover:text-ink">
-                    <Icon name="logout" />Logout
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </nav>
-        </aside>
-
+      <div className="mx-auto flex max-w-[1400px] gap-6 px-4 py-5 sm:px-6 sm:py-6">
+        <aside aria-label="Dashboard menu" className="sticky top-24 hidden h-[calc(100vh-8rem)] w-64 shrink-0 overflow-hidden rounded-3xl border border-line bg-bg2 lg:block">{menu}</aside>
         <div className="min-w-0 flex-1">
-          <div className="rounded-3xl border border-line bg-bg2/60 p-5 sm:p-8">{children}</div>
+          <div className="rounded-3xl border border-line bg-bg2/60 p-4 sm:p-8">{children}</div>
         </div>
       </div>
     </div>

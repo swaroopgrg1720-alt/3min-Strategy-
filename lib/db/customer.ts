@@ -13,3 +13,12 @@ export async function myLicenses() {
     .select("id,license_ref,plan,expiration_date,status,mt5_account,activation_status,start_date").order("created_at", { ascending: false });
   return ((data ?? []) as CustomerLicense[]).map((l) => ({ ...l, state: licenseState(l) }));
 }
+
+/** The EA version customers currently download (read-only, server side). */
+export async function currentProduct(): Promise<{ version: string; release_notes: string | null; created_at: string | null } | null> {
+  try {
+    const { supabaseAdmin } = await import("@/lib/supabase/admin");
+    const { data } = await supabaseAdmin().from("products").select("*").eq("is_current", true).maybeSingle();
+    return data ? { version: data.version, release_notes: data.release_notes ?? null, created_at: data.created_at ?? null } : null;
+  } catch { return null; }
+}
