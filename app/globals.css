@@ -99,3 +99,8 @@ p { text-wrap: pretty; }
 .chat-dot { animation: chat-dot 1.2s infinite ease-in-out; }
 .chat-scroll { scrollbar-width: thin; scrollbar-color: #2A352E transparent; overscroll-behavior: contain; }
 @media (prefers-reduced-motion: reduce) { .chat-panel, .chat-msg, .chat-dot { animation: none; } }
+
+/* License card: one slow light sweep when the card first appears. */
+@keyframes card-sheen { 0% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.card-sheen { background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.12) 50%, transparent 62%); animation: card-sheen 1.8s .3s ease-in-out 1 both; }
+@media (prefers-reduced-motion: reduce) { .card-sheen { animation: none; opacity: 0; } }

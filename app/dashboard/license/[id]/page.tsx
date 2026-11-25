@@ -5,8 +5,8 @@ import { CopyButton } from "@/components/dashboard/CopyButton";
 import { Countdown } from "@/components/dashboard/Countdown";
 import { OpenChatButton } from "@/components/dashboard/OpenChatButton";
 import { RevealKey } from "@/components/dashboard/RevealKey";
-import { Ico, Ring, StatusPill, daysLeft, dmy, dt, type IconName } from "@/components/dashboard/ui";
-import { LogoMark } from "@/components/ui/Logo";
+import { Ico, Ring, daysLeft, dmy, dt, type IconName } from "@/components/dashboard/ui";
+import { LicenseCard } from "@/components/dashboard/LicenseCard";
 import { licensePayments, myLicenseById } from "@/lib/db/customer";
 
 export const dynamic = "force-dynamic";
@@ -41,29 +41,31 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <>
       <Link href="/dashboard/license" className="inline-flex min-h-[40px] items-center text-sm font-semibold text-accent">‹ All licenses</Link>
 
-      <article className="mt-2 overflow-hidden rounded-3xl border border-line bg-bg shadow-lg shadow-black/20">
-        <div className="relative overflow-hidden bg-gradient-to-br from-forest via-[#14261D] to-bg2 p-5 sm:p-6">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full border border-accent/10" aria-hidden="true" />
-          <div className="relative flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2.5"><LogoMark size={34} /><span className="text-[13px] font-bold tracking-[0.14em]">3MIN <span className="text-accent">SCALP</span></span></span>
-            <StatusPill state={l.state} />
-          </div>
-          <div className="relative mt-6 flex items-end justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-xs text-ink/60">{lifetime ? "Lifetime license" : "Monthly license"}</p>
-              <h1 className="font-display text-3xl font-bold capitalize tracking-tight sm:text-4xl">{l.plan}</h1>
-              <p className="mt-3 flex flex-wrap items-center gap-2"><span className="break-all font-mono text-[13px] text-ink/80">{l.license_ref}</span>
-                <CopyButton value={l.license_ref} label="Copy ID" className="rounded-full border border-ink/20 px-2.5 py-0.5 text-xs font-medium text-ink/70 active:bg-black/20" /></p>
-            </div>
-            <Ring days={d} lifetime={lifetime} />
+      <section className="mt-2 grid items-center gap-6 rounded-3xl border border-line bg-bg2/70 p-4 shadow-lg shadow-black/20 sm:p-6 md:grid-cols-[minmax(0,460px)_minmax(0,1fr)]" aria-label="License overview">
+        <div>
+          <LicenseCard size="lg" sheen l={{ id: l.id, license_ref: l.license_ref, plan: l.plan, start_date: l.start_date, expiration_date: l.expiration_date, mt5_account: l.mt5_account, state: l.state }} />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <CopyButton value={l.license_ref} label="Copy license ID" className="rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-ink active:bg-forest/40" />
+            <span className="text-xs text-muted">Started {dmy(l.start_date)}</span>
           </div>
         </div>
-        <div className="p-5 sm:p-6">
+        <div className="min-w-0">
           {lifetime ? (
-            <p className="flex items-center gap-2.5 text-[15px] font-medium"><span className="text-accent"><Ico name="check" /></span>Lifetime access. This license never expires.</p>
-          ) : l.expiration_date ? <Countdown to={l.expiration_date} /> : null}
+            <div className="rounded-2xl border border-line bg-bg p-5">
+              <p className="flex items-center gap-2.5 font-display text-xl font-semibold"><span className="text-sun"><Ico name="check" /></span>Lifetime access</p>
+              <p className="mt-1.5 text-sm text-muted">This license never expires. Updates and support stay available while the license is active.</p>
+            </div>
+          ) : l.expiration_date ? (
+            <>
+              <Countdown to={l.expiration_date} />
+              <div className="mt-4 flex items-center gap-4 rounded-2xl border border-line bg-bg p-4">
+                <Ring days={d} lifetime={false} />
+                <p className="text-sm leading-relaxed text-muted">{(d ?? 0) <= 0 ? "This license has ended. Renew to continue using the EA." : (d ?? 0) <= 7 ? "Your license is ending soon. Renew now so trading is not interrupted." : "Your license is in good standing."}</p>
+              </div>
+            </>
+          ) : null}
         </div>
-      </article>
+      </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-6">
