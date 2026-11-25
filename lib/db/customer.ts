@@ -32,9 +32,16 @@ export type CustomerLicenseFull = CustomerLicense & { activated_at: string | nul
 export async function myLicenseById(id: string): Promise<CustomerLicenseFull | null> {
   if (!isUuid(id)) return null;
   const { data } = await (await supabaseServer()).from("licenses")
-    .select("id,license_ref,plan,expiration_date,status,mt5_account,activation_status,start_date,activated_at,last_validated_at").eq("id", id).maybeSingle();
+    .select("id,license_ref,plan,expiration_date,status,mt5_account,activation_status,start_date,activated_at").eq("id", id).maybeSingle();
   if (!data) return null;
-  const l = data as CustomerLicense & { activated_at: string | null; last_validated_at: string | null };
+  // Customers may not read last_validated_at directly (column-level grant), so read it on the server now that ownership is proven.
+  let last: string | null = null;
+  try {
+    const { supabaseAdmin } = await import("@/lib/supabase/admin");
+    const r = await supabaseAdmin().from("licenses").select("last_validated_at").eq("id", id).maybeSingle();
+    last = (r.data?.last_validated_at as string | null) ?? null;
+  } catch { /* optional detail */ }
+  const l = { ...(data as CustomerLicense & { activated_at: string | null }), last_validated_at: last };
   return { ...l, state: licenseState(l) };
 }
 
