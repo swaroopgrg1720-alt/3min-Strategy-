@@ -71,3 +71,14 @@ Run `supabase/migrations/005_renew.sql` once in the Supabase SQL editor. After t
 
 ### Automatic replies
 Run `supabase/migrations/007_chat_auto.sql` once. Visitors then get an instant, pre-written answer for common questions (price, payment, license, download, renewal, refund, risk) and a "we received your message" note otherwise. Nothing is sent automatically for 3 hours after you reply yourself. Edit the wording in `lib/chat/autoreply.ts`.
+
+## Login, passwords and security
+Customers now sign in with **email + password**. Forgot password and email confirmation use a **6-digit code** sent by email.
+
+1. Supabase → SQL editor → run `supabase/migrations/008_auth_throttle.sql` (locks brute-force attempts).
+2. Supabase → Authentication → Sign In / Providers → Email: keep **Confirm email ON**, set **Minimum password length to 12**, and turn on **Prevent use of leaked passwords** if your plan offers it.
+3. Supabase → Authentication → Email Templates: paste the templates from `supabase/email-templates/README.md` into **Confirm signup** and **Reset password** (they must contain `{{ .Token }}`).
+4. Supabase → Authentication → Emails → SMTP Settings: add a custom SMTP (Resend works: host `smtp.resend.com`, port 465, user `resend`, password = your Resend API key). The built-in sender only allows a few emails per hour, so codes will fail without this.
+5. Supabase → Authentication → Sign In / Providers → Email → set **Email OTP expiration** to 600 seconds (10 minutes).
+6. Existing customers have no password yet: they open the sign-in page, choose **Forgot password**, enter the code, and set one.
+7. In the account page customers can change their password and sign out on all devices.

@@ -1,6 +1,8 @@
 import { requireUser, isAdminEmail } from "@/lib/auth";
 import Link from "next/link";
 import { Ico, PageHeader, dmy } from "@/components/dashboard/ui";
+import { ChangePassword } from "@/components/dashboard/ChangePassword";
+import { signOutEverywhere } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,18 @@ export default async function Page() {
           {isAdminEmail(email) && <Link href="/admin" className="inline-flex min-h-[46px] items-center gap-2 rounded-full border border-line px-5 text-sm font-semibold active:bg-forest/40"><Ico name="user" size={18} />Admin panel</Link>}
           <form action="/auth/signout" method="post"><button className="inline-flex min-h-[46px] items-center rounded-full bg-red-400/10 px-5 text-sm font-semibold text-red-300 active:bg-red-400/20">Sign out</button></form>
         </div>
+      </section>
+
+      <section className="mt-6 max-w-xl rounded-2xl border border-line bg-bg p-5" aria-label="Security">
+        <h2 className="font-display text-lg font-semibold">Password</h2>
+        <p className="mb-4 mt-0.5 text-sm text-muted">Use a long, unique password that you do not use anywhere else.</p>
+        <ChangePassword />
+      </section>
+
+      <section className="mt-6 max-w-xl rounded-2xl border border-line bg-bg p-5" aria-label="Devices">
+        <h2 className="font-display text-lg font-semibold">Signed-in devices</h2>
+        <p className="mb-4 mt-0.5 text-sm text-muted">Lost a phone or used a shared computer? Sign out everywhere, then sign in again.</p>
+        <form action={signOutEverywhere}><button className="inline-flex min-h-[46px] items-center rounded-full border border-red-400/30 px-5 text-sm font-semibold text-red-300 active:bg-red-400/10">Sign out on all devices</button></form>
       </section>
     </>
   );

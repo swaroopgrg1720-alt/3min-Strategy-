@@ -23,9 +23,9 @@ export function AdminLoginForms() {
           <input name="email" type="email" required autoComplete="email" className={input} />
         </label>
         <label className="block text-sm font-medium">Password
-          <input name="password" type="password" required minLength={signup ? 10 : 1} autoComplete={signup ? "new-password" : "current-password"} className={input} />
+          <input name="password" type="password" required minLength={signup ? 12 : 1} autoComplete={signup ? "new-password" : "current-password"} className={input} />
         </label>
-        {signup && <p className="text-xs text-muted">At least 10 characters. Only the email set in ADMIN_EMAILS can register.</p>}
+        {signup && <p className="text-xs text-muted">At least 12 characters with upper and lower case, a number and a symbol. Only the email set in ADMIN_EMAILS can register.</p>}
         <button className="btn btn-primary w-full disabled:opacity-60" disabled={pending}>{pending ? "Please wait…" : signup ? "Create account" : "Sign in"}</button>
         {state.error && <p role="alert" className="text-sm text-red-400">{state.error}</p>}
       </form>

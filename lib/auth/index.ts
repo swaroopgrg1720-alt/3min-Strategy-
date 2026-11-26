@@ -5,7 +5,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 export async function getUser() {
   const supabase = await supabaseServer();
   const { data } = await supabase.auth.getUser();
-  return data.user;
+  // An account whose email was never confirmed by code must not see anyone's licenses.
+  return data.user?.email_confirmed_at ? data.user : null;
 }
 
 export async function requireUser() {
