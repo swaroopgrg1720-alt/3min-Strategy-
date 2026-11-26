@@ -39,7 +39,7 @@ export const site = {
     effectiveDate: "[EFFECTIVE DATE]",
   },
   social: [
-    { id: "instagram", label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, placeholder: "[INSTAGRAM URL]" },
+    { id: "instagram", label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/3minscalp", placeholder: "[INSTAGRAM URL]" },
     { id: "facebook", label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL, placeholder: "[FACEBOOK URL]" },
   ],
   nav: [
