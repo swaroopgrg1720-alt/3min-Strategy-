@@ -30,8 +30,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
             </div>
             <h1 className="mt-5 font-display text-2xl font-bold tracking-tight sm:text-3xl">Welcome back</h1>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">Sign in to manage your licenses, downloads and tools.</p>
-            {error && <p role="alert" className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">That link is no longer valid. Sign in with your password, or use Forgot password to get a code.</p>}
-            {configured ? <AuthForms next={safeNext} /> : (
+            {error && <p role="alert" className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">Sign-in could not be completed. Please try again, or use your email and password.</p>}
+            {configured ? <AuthForms next={safeNext} google={process.env.NEXT_PUBLIC_GOOGLE_LOGIN === "1"} /> : (
               <p role="status" className="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-300">Sign-in is not configured yet. Add the Supabase environment variables in Vercel and redeploy.</p>
             )}
             <ul className="mt-6 space-y-1.5 border-t border-line pt-5 text-xs leading-relaxed text-muted">

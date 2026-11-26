@@ -82,3 +82,11 @@ Customers now sign in with **email + password**. Forgot password and email confi
 5. Supabase → Authentication → Sign In / Providers → Email → set **Email OTP expiration** to 600 seconds (10 minutes).
 6. Existing customers have no password yet: they open the sign-in page, choose **Forgot password**, enter the code, and set one.
 7. In the account page customers can change their password and sign out on all devices.
+
+## Sign in with Google (optional)
+1. console.cloud.google.com → create a project → APIs & Services → OAuth consent screen (External, app name 3MIN SCALP, your email) → Publish.
+2. Credentials → Create credentials → OAuth client ID → Web application. Under Authorized redirect URIs add `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`. Copy the Client ID and Client secret.
+3. Supabase → Authentication → Sign In / Providers → Google → turn on, paste Client ID and Client secret, Save.
+4. Supabase → Authentication → URL Configuration → Site URL = your website address; add `https://YOUR-SITE/**` to Redirect URLs.
+5. Vercel → Environment Variables → `NEXT_PUBLIC_GOOGLE_LOGIN` = `1`, then redeploy. The Google button appears on the sign-in page.
+Google accounts are matched to licenses by email, so customers who bought with their Gmail see their licenses immediately.
