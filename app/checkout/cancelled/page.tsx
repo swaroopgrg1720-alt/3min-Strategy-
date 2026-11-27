@@ -3,9 +3,10 @@ import { PageHeader } from "@/components/ui/SectionHeading";
 
 export const metadata: Metadata = { title: "Payment cancelled", robots: { index: false } };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ plan?: string; from?: string }> }) {
-  const { plan, from } = await searchParams;
-  const href = from === "dashboard" ? "/dashboard/renew" : plan === "monthly" || plan === "lifetime" ? `/checkout?plan=${plan}` : "/checkout";
+export default async function Page({ searchParams }: { searchParams: Promise<{ plan?: string; from?: string; product?: string }> }) {
+  const { plan, from, product } = await searchParams;
+  const pq = product === "indicator" ? "&product=indicator" : "";
+  const href = from === "dashboard" ? (pq ? "/dashboard/renew?product=indicator" : "/dashboard/renew") : plan === "monthly" || plan === "lifetime" ? `/checkout?plan=${plan}${pq}` : pq ? "/checkout?product=indicator" : "/checkout";
   return (
     <>
       <PageHeader eyebrow="Checkout" title="Payment cancelled" text="No payment was made and nothing was charged." />

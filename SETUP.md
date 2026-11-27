@@ -90,3 +90,14 @@ Customers now sign in with **email + password**. Forgot password and email confi
 4. Supabase → Authentication → URL Configuration → Site URL = your website address; add `https://YOUR-SITE/**` to Redirect URLs.
 5. Vercel → Environment Variables → `NEXT_PUBLIC_GOOGLE_LOGIN` = `1`, then redeploy. The Google button appears on the sign-in page.
 Google accounts are matched to licenses by email, so customers who bought with their Gmail see their licenses immediately.
+
+## TradingView indicator (second product)
+
+1. The database part (migration `009_indicator.sql`) is already applied to your Supabase project.
+2. In Vercel, Settings, Environment Variables, add these (then redeploy):
+   - `NEXT_PUBLIC_INDICATOR_NAME` (default "3MIN SCALP Indicator")
+   - `NEXT_PUBLIC_INDICATOR_TAGLINE` (one line shown under the name)
+   - `NEXT_PUBLIC_INDICATOR_MONTHLY_USD` (for example 19). Leave empty to hide the monthly plan.
+   - `NEXT_PUBLIC_INDICATOR_LIFETIME_USD` (for example 99). Leave empty to hide the lifetime plan.
+   With no price set, the indicator shows "Soon" and cannot be bought.
+3. After a customer pays you get an email (and an entry in Admin, Indicator). Open your script on TradingView, Manage access, add their username, then press "Mark as granted" in Admin.

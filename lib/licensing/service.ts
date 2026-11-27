@@ -1,6 +1,9 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { newKeyMaterial } from "./keys";
+import { INDICATOR_PRODUCT } from "@/lib/config/pricing";
+import { escapeHtml, sendEmail } from "@/lib/email/send";
+import { site } from "@/lib/config/site";
 
 export interface LicenseRow {
   id: string;
@@ -26,6 +29,8 @@ export function licenseState(l: Pick<LicenseRow, "status" | "plan" | "expiration
 /** Called ONLY after a verified payment (signed webhook) or an admin confirmation. Idempotent. */
 export async function fulfilOrder(orderId: string): Promise<string> {
   const db = supabaseAdmin();
+  const { data: ord } = await db.from("orders").select("product,customer_email,tv_username,plan,months,renew_access_id,order_status").eq("order_id", orderId).maybeSingle();
+  if (ord?.product === INDICATOR_PRODUCT) return fulfilIndicator(orderId, ord);
   const m = newKeyMaterial();
   const { data, error } = await db.rpc("fulfil_order", {
     p_order_id: orderId,
@@ -61,4 +66,25 @@ export async function logEvent(licenseId: string | null, event: string, detail: 
   } catch {
     /* logging must never break validation */
   }
+}
+
+
+/** TradingView indicator purchase: records the access request and tells the owner to add the username in TradingView. */
+async function fulfilIndicator(orderId: string, ord: { customer_email: string; tv_username: string | null; plan: string; months: number | null; renew_access_id: string | null; order_status: string }): Promise<string> {
+  const { data, error } = await supabaseAdmin().rpc("fulfil_indicator_order", { p_order_id: orderId });
+  if (error) throw new Error(error.message);
+  if (ord.order_status !== "confirmed") {
+    const to = (process.env.ADMIN_EMAILS ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+    if (to.length) {
+      const what = ord.renew_access_id ? "Indicator renewal" : "New indicator purchase";
+      const detail = `${ord.plan}${ord.plan === "monthly" ? ` x ${ord.months ?? 1} month(s)` : ""}`;
+      const link = `${site.url}/admin/indicator`;
+      void sendEmail({
+        to, subject: `${what}: ${ord.tv_username ?? ""}`,
+        text: `${what}\nTradingView username: ${ord.tv_username}\nEmail: ${ord.customer_email}\nPlan: ${detail}\nOrder: ${orderId}\n\nAdd the username in TradingView, then mark it as granted: ${link}`,
+        html: `<p><strong>${what}</strong></p><p>TradingView username: <strong>${escapeHtml(ord.tv_username ?? "")}</strong><br>Email: ${escapeHtml(ord.customer_email)}<br>Plan: ${escapeHtml(detail)}<br>Order: ${escapeHtml(orderId)}</p><p>Add the username in TradingView, then <a href="${link}">mark it as granted</a>.</p>`,
+      }).catch(() => {});
+    }
+  }
+  return data as string;
 }

@@ -55,3 +55,31 @@ export const parseMonths = (v: unknown): number => {
 
 /** Server-side price for an order. Lifetime ignores months. */
 export const orderTotalUsd = (plan: PlanId, months: number) => (plan === "lifetime" ? plans.lifetime.priceUsd : plans.monthly.priceUsd * months);
+
+/* ───────── TradingView indicator (second product) ───────── */
+
+export type ProductId = "ea" | "indicator";
+export const isProductId = (v: unknown): v is ProductId => v === "ea" || v === "indicator";
+/** Stored in orders.product so the server knows which fulfilment to run. */
+export const INDICATOR_PRODUCT = "TV_INDICATOR";
+
+const usd = (v: string | undefined) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 && n < 100_000 ? Math.round(n * 100) / 100 : 0;
+};
+
+/**
+ * Prices come from Vercel (NEXT_PUBLIC_INDICATOR_MONTHLY_USD / _LIFETIME_USD). A plan with no price is not sold,
+ * and with no prices at all the indicator shows "Soon" and cannot be bought.
+ */
+export const indicator = {
+  name: process.env.NEXT_PUBLIC_INDICATOR_NAME?.trim() || "3MIN SCALP Indicator",
+  tagline: process.env.NEXT_PUBLIC_INDICATOR_TAGLINE?.trim() || "A TradingView indicator for CFD and futures charts.",
+  monthlyUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_MONTHLY_USD),
+  lifetimeUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_LIFETIME_USD),
+};
+export const indicatorEnabled = indicator.monthlyUsd > 0 || indicator.lifetimeUsd > 0;
+export const indicatorPlanPrice = (plan: PlanId) => (plan === "lifetime" ? indicator.lifetimeUsd : indicator.monthlyUsd);
+export const indicatorPlanAvailable = (plan: PlanId) => indicatorPlanPrice(plan) > 0;
+export const indicatorTotalUsd = (plan: PlanId, months: number) => (plan === "lifetime" ? indicator.lifetimeUsd : indicator.monthlyUsd * months);
+export const isTvUsername = (v: string) => /^[A-Za-z0-9_]{3,30}$/.test(v);

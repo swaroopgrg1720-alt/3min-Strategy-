@@ -194,3 +194,47 @@ export async function setTicketStatusAction(f: FormData) {
     if (error) throw new Error(error.message);
   });
 }
+
+/* ───────── TradingView indicator access ───────── */
+
+export async function grantIndicatorAction(f: FormData) {
+  await run(f, "Marked as granted. The customer was emailed.", async () => {
+    const db = supabaseAdmin();
+    const { data: a } = await db.from("indicator_access").select("*").eq("id", str(f, "id", 40)).maybeSingle();
+    if (!a) throw new Error("Access not found.");
+    const now = Date.now();
+    const expires = a.plan === "lifetime" ? null : new Date(now + DAY * 30 * Math.max(1, a.months ?? 1)).toISOString();
+    const { error } = await db.from("indicator_access").update({ status: "active", granted_at: new Date(now).toISOString(), expires_at: expires }).eq("id", a.id);
+    if (error) throw new Error(error.message);
+    const { sendEmail } = await import("@/lib/email/send");
+    await sendEmail({ to: a.customer_email, subject: "Your TradingView indicator is ready", text: `Your access was added to the TradingView username @${a.tv_username}.\n\nOpen TradingView, click Indicators, choose Invite-only scripts and add the indicator to your chart.\n\nYou can see the status in your dashboard.` }).catch(() => false);
+  });
+}
+
+export async function extendIndicatorAction(f: FormData) {
+  await run(f, "Extended by 30 days.", async () => {
+    const db = supabaseAdmin();
+    const { data: a } = await db.from("indicator_access").select("*").eq("id", str(f, "id", 40)).maybeSingle();
+    if (!a) throw new Error("Access not found.");
+    if (a.plan !== "monthly") throw new Error("Lifetime access has no expiry.");
+    const base = Math.max(Date.now(), a.expires_at ? Date.parse(a.expires_at) : 0);
+    const { error } = await db.from("indicator_access").update({ expires_at: new Date(base + 30 * DAY).toISOString() }).eq("id", a.id);
+    if (error) throw new Error(error.message);
+  });
+}
+
+export async function setIndicatorStatusAction(f: FormData) {
+  await run(f, "Updated.", async () => {
+    const status = str(f, "status", 20);
+    if (!["pending", "active", "revoked"].includes(status)) throw new Error("Invalid status.");
+    const { error } = await supabaseAdmin().from("indicator_access").update({ status }).eq("id", str(f, "id", 40));
+    if (error) throw new Error(error.message);
+  });
+}
+
+export async function deleteIndicatorAction(f: FormData) {
+  await run(f, "Deleted.", async () => {
+    const { error } = await supabaseAdmin().from("indicator_access").delete().eq("id", str(f, "id", 40));
+    if (error) throw new Error(error.message);
+  });
+}

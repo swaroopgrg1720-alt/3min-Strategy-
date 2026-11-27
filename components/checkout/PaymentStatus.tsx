@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** Polls the server for the order status (set only by the verified webhook or the owner). */
-export function PaymentStatus({ orderId, renewal = false }: { orderId: string; renewal?: boolean }) {
+export function PaymentStatus({ orderId, renewal = false, indicator = false }: { orderId: string; renewal?: boolean; indicator?: boolean }) {
   const [status, setStatus] = useState("awaiting_payment");
   useEffect(() => {
     let stop = false;
@@ -27,18 +27,20 @@ export function PaymentStatus({ orderId, renewal = false }: { orderId: string; r
       {done ? (
         <>
           <h2 className="mt-3 text-xl font-semibold text-accent">{renewal ? "Renewed! Payment confirmed" : "Thank you for purchasing! Payment confirmed"}</h2>
-          <p className="mt-2 text-sm text-muted">{renewal ? "Your license has been extended. Open My License and copy your new key, because the key changes with the new expiry date." : "Your license is ready. Sign in with the email you used at checkout to view it."}</p>
-          <a className="btn btn-primary mt-5" href="/login?next=/dashboard/license">{renewal ? "Open My License" : "Sign in to get your key"}</a>
+          <p className="mt-2 text-sm text-muted">{indicator
+            ? (renewal ? "Your indicator access has been extended. Open your dashboard to see the new expiry." : "We will now add your TradingView username to the indicator. You will see the status in your dashboard, where it changes to Active when access is ready.")
+            : (renewal ? "Your license has been extended. Open My License and copy your new key, because the key changes with the new expiry date." : "Your license is ready. Sign in with the email you used at checkout to view it.")}</p>
+          <a className="btn btn-primary mt-5" href={indicator ? "/login?next=/dashboard/indicator" : "/login?next=/dashboard/license"}>{indicator ? "Open my indicator" : renewal ? "Open My License" : "Sign in to get your key"}</a>
         </>
       ) : review ? (
         <>
           <h2 className="mt-3 text-xl font-semibold">Payment under review</h2>
-          <p className="mt-2 text-sm text-muted">We received a payment that needs a manual check (for example a different amount). We will issue your license shortly, or contact support with your order ID.</p>
+          <p className="mt-2 text-sm text-muted">We received a payment that needs a manual check (for example a different amount). We will finish your order shortly, or contact support with your order ID.</p>
         </>
       ) : expired ? (
         <>
           <h2 className="mt-3 text-xl font-semibold">Payment expired</h2>
-          <a className="btn btn-primary mt-5" href="/checkout">Start again</a>
+          <a className="btn btn-primary mt-5" href={indicator ? "/checkout?product=indicator" : "/checkout"}>Start again</a>
         </>
       ) : (
         <>

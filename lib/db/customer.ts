@@ -57,3 +57,19 @@ export async function licensePayments(id: string): Promise<PaymentRow[]> {
   if (r.error) r = await db.from("orders").select(cols).eq("license_id", id).in("order_status", states).order("created_at", { ascending: false }).limit(20);
   return (r.data ?? []) as PaymentRow[];
 }
+
+export interface IndicatorAccess {
+  id: string; order_id: string; tv_username: string; plan: "monthly" | "lifetime"; months: number;
+  status: "pending" | "active" | "revoked"; expires_at: string | null; granted_at: string | null; created_at: string;
+  state: "pending" | "active" | "expired" | "revoked";
+}
+
+/** The signed-in customer's TradingView indicator access rows (RLS limits them to their own). */
+export async function myIndicatorAccess(): Promise<IndicatorAccess[]> {
+  const { data } = await (await supabaseServer()).from("indicator_access")
+    .select("id,order_id,tv_username,plan,months,status,expires_at,granted_at,created_at").order("created_at", { ascending: false });
+  return ((data ?? []) as Omit<IndicatorAccess, "state">[]).map((a) => ({
+    ...a,
+    state: a.status === "active" && a.expires_at && Date.parse(a.expires_at) < Date.now() ? "expired" : a.status,
+  }));
+}

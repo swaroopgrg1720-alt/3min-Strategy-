@@ -3,16 +3,41 @@ import { CryptoCheckout } from "@/components/checkout/CryptoCheckout";
 import { Empty } from "@/components/dashboard/DashboardShell";
 import { requireUser } from "@/lib/auth";
 import { isPlanId } from "@/lib/config/pricing";
-import { myLicenses } from "@/lib/db/customer";
+import { myIndicatorAccess, myLicenses } from "@/lib/db/customer";
 import { StatusPill, daysLeft } from "@/components/dashboard/ui";
 
 export const dynamic = "force-dynamic";
 const dmy = (iso: string | null) => (iso ? iso.slice(0, 10).split("-").reverse().join("-") : "—");
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ plan?: string; license?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ plan?: string; license?: string; product?: string; access?: string }> }) {
   const user = await requireUser();
-  const { plan, license } = await searchParams;
+  const { plan, license, product, access } = await searchParams;
   const all = await myLicenses();
+
+  if (product === "indicator") {
+    if (access) {
+      const a = (await myIndicatorAccess()).find((x) => x.id === access);
+      if (!a) return <Empty title="Access not found" text="That indicator access is not on your account." />;
+      if (a.plan !== "monthly") return <Empty title="Nothing to renew" text="Lifetime access never expires." />;
+      if (a.status === "revoked") return <Empty title="This access was revoked" text="Please contact support if you think this is a mistake." />;
+      return (
+        <>
+          <Link href="/dashboard/indicator" className="text-sm text-accent">‹ Indicator</Link>
+          <h1 className="mb-1 mt-3 font-display text-2xl font-bold sm:text-3xl">Renew indicator</h1>
+          <p className="mb-6 text-sm text-muted">Choose how many months to add to the same TradingView username.</p>
+          <CryptoCheckout dashboard accountEmail={user.email ?? ""} initialPlan="monthly" initialProduct="indicator" renewAccess={{ id: a.id, username: a.tv_username, expires: a.expires_at }} />
+        </>
+      );
+    }
+    return (
+      <>
+        <Link href="/dashboard/indicator" className="text-sm text-accent">‹ Indicator</Link>
+        <h1 className="mb-1 mt-3 font-display text-2xl font-bold sm:text-3xl">Buy the indicator</h1>
+        <p className="mb-6 text-sm text-muted">Enter your TradingView username and pay with crypto.</p>
+        <CryptoCheckout dashboard accountEmail={user.email ?? ""} initialPlan={isPlanId(plan) ? plan : "monthly"} initialProduct="indicator" />
+      </>
+    );
+  }
 
   // Renewing one specific license
   if (license) {

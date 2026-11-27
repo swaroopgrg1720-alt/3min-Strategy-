@@ -10,6 +10,7 @@ const ICONS: Record<string, string[]> = {
   orders: ["M6 3h12l1 4H5z", "M5 7v13h14V7", "M9 11h6"],
   licenses: ["M15 7a4 4 0 1 1-3.9 4.9L4 19v-3h3v-2h2l2.1-2.1A4 4 0 0 1 15 7z"],
   customers: ["M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z", "M2.5 20a6.5 6.5 0 0 1 13 0", "M16 4.5a3.5 3.5 0 0 1 0 6.5", "M18 14a6 6 0 0 1 3.5 6"],
+  indicator: ["M3 17l5-6 4 3 5-8 4 5", "M3 21h18"],
   download: ["M12 4v11", "m7 11 5 5 5-5", "M5 20h14"],
   support: ["M4 13v-1a8 8 0 0 1 16 0v1", "M4 13h3v5H5a1 1 0 0 1-1-1z", "M20 13h-3v5h2a1 1 0 0 0 1-1z", "M17 18c0 2-2 3-5 3"],
   chat: ["M4 5h16v11H9l-5 4z"],
@@ -31,6 +32,7 @@ export const ADMIN_NAV = [
   { href: "/admin/licenses", label: "Licenses", icon: "licenses" },
   { href: "/admin/customers", label: "Customers", icon: "customers" },
   { href: "/admin/downloads", label: "EA downloads", icon: "download" },
+  { href: "/admin/indicator", label: "Indicator", icon: "indicator" },
   { href: "/admin/chat", label: "Live chat", icon: "chat" },
   { href: "/admin/support", label: "Support", icon: "support" },
 ];

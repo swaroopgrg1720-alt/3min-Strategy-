@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 const ICONS: Record<string, string[]> = {
   dashboard: ["M4 4h7v7H4z", "M13 4h7v4h-7z", "M13 10h7v10h-7z", "M4 13h7v7H4z"],
   license: ["M15 7a4 4 0 1 1-3.9 4.9L4 19v-3h3v-2h2l2.1-2.1A4 4 0 0 1 15 7z", "M16.5 8.5h.01"],
+  indicator: ["M3 17l5-6 4 3 5-8 4 5", "M3 21h18"],
   renew: ["M20 12a8 8 0 1 1-2.4-5.7", "M20 4v5h-5"],
   download: ["M12 4v11", "m7 11 5 5 5-5", "M5 20h14"],
   journal: ["M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z", "M6 3v18", "M10 8h6", "M10 12h6"],
@@ -31,6 +32,7 @@ export const dashNav = [
   { href: "/dashboard/license", label: "My License", icon: "license" },
   { href: "/dashboard/renew", label: "Renew / Buy", icon: "renew" },
   { href: "/dashboard/downloads", label: "Download", icon: "download" },
+  { href: "/dashboard/indicator", label: "Indicator", icon: "indicator" },
   { href: "/dashboard/journal", label: "Trading Journal", icon: "journal" },
   { href: "/dashboard/tools", label: "Trading Tools", icon: "tools" },
   { href: "/dashboard/documentation", label: "Documentation", icon: "docs" },
@@ -40,8 +42,8 @@ export const dashNav = [
 
 const GROUPS: { title: string; items: { href: string; label: string; icon: string }[] }[] = [
   { title: "Overview", items: dashNav.slice(0, 3) },
-  { title: "Tools", items: dashNav.slice(3, 7) },
-  { title: "Help", items: dashNav.slice(7) },
+  { title: "Tools", items: dashNav.slice(3, 8) },
+  { title: "Help", items: dashNav.slice(8) },
 ];
 
 export function DashboardShell({ children, email, isAdmin = false }: { children: React.ReactNode; email?: string; isAdmin?: boolean }) {
