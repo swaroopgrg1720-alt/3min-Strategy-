@@ -17,7 +17,7 @@ const RULES: { match: RegExp; answer: string }[] = [
   { match: /\b(pay|paid|payment|crypto|usdt|btc|bitcoin|wallet|checkout|order|transaction|not received|did not get)\b/i,
     answer: "We accept crypto only, through a secure CryptoPayr checkout. Your license is issued automatically once the payment is confirmed on the network, which can take a few minutes. If you have paid and see no license, send us your order email and the transaction ID and we will check it right away." + MORE },
   { match: /\b(price|pricing|cost|how much|plan|plans|monthly|lifetime|\$)\b/i,
-    answer: "Monthly is $29 per month (you can buy 1 to 12 months at once) and Lifetime is $199 one time. Prices are in USD and paid in crypto. You can see both plans on the Pricing section of the homepage." + MORE },
+    answer: "The MT5 EA is $50 per month (you can buy 1 to 12 months at once) or $250 lifetime. The TradingView indicator is $35 per month or $200 lifetime. Prices are in USD and paid in crypto. See both on the Pricing page." + MORE },
   { match: /\b(profit|guarantee|guaranteed|win ?rate|returns?|results?|risk|safe|scam|legit)\b/i,
     answer: "Trading carries a high level of risk and past performance does not guarantee future results. Please read our Risk Disclosure page (/risk-disclosure) before buying. We cannot promise profits or give financial advice." + MORE },
   { match: /^(hi|hello|hey|hii+|good (morning|afternoon|evening)|yo)\b[\s!.?]*$/i,

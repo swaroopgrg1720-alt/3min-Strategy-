@@ -43,8 +43,8 @@ const jsonLd = {
       softwareVersion: site.version,
       description: site.description,
       offers: [
-        { "@type": "Offer", name: "Monthly", price: "29", priceCurrency: "USD" },
-        { "@type": "Offer", name: "Lifetime", price: "199", priceCurrency: "USD" },
+        { "@type": "Offer", name: "Monthly", price: "50", priceCurrency: "USD" },
+        { "@type": "Offer", name: "Lifetime", price: "250", priceCurrency: "USD" },
       ],
     },
   ],

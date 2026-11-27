@@ -25,16 +25,16 @@ export const plans: Record<PlanId, Plan> = {
   monthly: {
     id: "monthly",
     name: "Monthly",
-    priceUsd: 29,
-    priceLabel: "$29",
+    priceUsd: 50,
+    priceLabel: "$50",
     cadence: "/ month",
     features: base,
   },
   lifetime: {
     id: "lifetime",
     name: "Lifetime",
-    priceUsd: 199,
-    priceLabel: "$199",
+    priceUsd: 250,
+    priceLabel: "$250",
     cadence: "one-time payment",
     features: [...base, "Lifetime license"],
     highlight: true,
@@ -63,8 +63,8 @@ export const isProductId = (v: unknown): v is ProductId => v === "ea" || v === "
 /** Stored in orders.product so the server knows which fulfilment to run. */
 export const INDICATOR_PRODUCT = "TV_INDICATOR";
 
-const usd = (v: string | undefined) => {
-  const n = Number(v);
+const usd = (v: string | undefined, fallback = 0) => {
+  const n = v?.trim() ? Number(v) : fallback;
   return Number.isFinite(n) && n > 0 && n < 100_000 ? Math.round(n * 100) / 100 : 0;
 };
 
@@ -74,9 +74,9 @@ const usd = (v: string | undefined) => {
  */
 export const indicator = {
   name: process.env.NEXT_PUBLIC_INDICATOR_NAME?.trim() || "3MIN SCALP Indicator",
-  tagline: process.env.NEXT_PUBLIC_INDICATOR_TAGLINE?.trim() || "A TradingView indicator for CFD and futures charts.",
-  monthlyUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_MONTHLY_USD),
-  lifetimeUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_LIFETIME_USD),
+  tagline: process.env.NEXT_PUBLIC_INDICATOR_TAGLINE?.trim() || "A TradingView indicator built for the 3-minute chart and the New York session.",
+  monthlyUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_MONTHLY_USD, 35),
+  lifetimeUsd: usd(process.env.NEXT_PUBLIC_INDICATOR_LIFETIME_USD, 200),
 };
 export const indicatorEnabled = indicator.monthlyUsd > 0 || indicator.lifetimeUsd > 0;
 export const indicatorPlanPrice = (plan: PlanId) => (plan === "lifetime" ? indicator.lifetimeUsd : indicator.monthlyUsd);
