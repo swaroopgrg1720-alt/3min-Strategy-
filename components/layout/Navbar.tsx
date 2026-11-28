@@ -16,7 +16,9 @@ const INDICATOR_NAV = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const isInd = pathname.startsWith("/indicator");
+  const [qInd, setQInd] = useState(false);
+  useEffect(() => { try { setQInd(new URLSearchParams(window.location.search).get("product") === "indicator"); } catch { setQInd(false); } }, [pathname]);
+  const isInd = pathname.startsWith("/indicator") || (qInd && (pathname.startsWith("/checkout") || pathname.startsWith("/pricing")));
   const nav = isInd ? INDICATOR_NAV : site.nav;
   const cta = isInd ? { href: "/indicator#pricing", label: "Get the indicator" } : { href: "/pricing", label: "Get 3MIN SCALP" };
   const tabs = [
@@ -42,14 +44,6 @@ export function Navbar() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:rounded focus:bg-accent focus:px-3 focus:py-1 focus:text-bg">
         Skip to content
       </a>
-      <div role="tablist" aria-label="Choose product" className="flex border-b border-line/70 bg-bg2">
-        {tabs.map((t) => (
-          <Link key={t.href} href={t.href} role="tab" aria-selected={t.on}
-            className={`flex h-11 flex-1 items-center justify-center border-t-2 px-2 text-sm font-semibold transition sm:max-w-[16rem] sm:flex-none sm:px-8 ${t.on ? "border-accent bg-bg text-accent" : "border-transparent text-muted hover:text-ink"}`}>
-            {t.label}
-          </Link>
-        ))}
-      </div>
       <div className="container-x flex h-16 items-center justify-between">
         <Link href="/" aria-label="3MIN SCALP — home">
           <Logo />
@@ -91,6 +85,14 @@ export function Navbar() {
         </div>
       </div>
 
+      <div role="tablist" aria-label="Choose product" className="flex border-t border-line/70 bg-bg2">
+        {tabs.map((t) => (
+          <Link key={t.href} href={t.href} role="tab" aria-selected={t.on}
+            className={`flex h-11 flex-1 items-center justify-center border-t-2 px-2 text-sm font-semibold transition sm:max-w-[16rem] sm:flex-none sm:px-8 ${t.on ? "border-accent bg-bg text-accent" : "border-transparent text-muted hover:text-ink"}`}>
+            {t.label}
+          </Link>
+        ))}
+      </div>
     </header>
       {open && (
         <div id="mobile-menu" className="fixed inset-x-0 top-[108px] bottom-0 z-40 bg-bg lg:hidden">
