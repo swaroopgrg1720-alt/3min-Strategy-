@@ -29,6 +29,7 @@ const faqs: [string, string][] = [
   ["Does it place trades automatically?", "No. It is an indicator on a chart. You decide and place every trade yourself."],
   ["Does it show buy and sell signals?", "Yes. It shows directional buy and sell signals on the chart, and supported setups can display entry, stop loss and take profit levels. Signals are potential setups, not guarantees."],
   ["Which markets does it support?", "It can be used across many instruments and asset classes. It is primarily designed and developed with XAU/USD (Gold) in mind."],
+  ["Does it work on mobile?", "Yes. It works on the TradingView mobile app."],
   ["Is there a monthly plan and a lifetime plan?", "Yes. Monthly access lasts 30 days per month bought. Lifetime is a one-time payment for the current indicator."],
   ["Does my subscription renew by itself?", "No. Payments are made in crypto, so nothing is charged automatically. You renew from your dashboard when you want more time."],
   ["What happens when my access expires?", "Your access is removed from the TradingView script. Renew from your dashboard and the time is added to the same username."],
@@ -66,7 +67,7 @@ export default function Page() {
       </section>
       <section aria-label="Product facts" className="border-y border-line bg-bg2/50">
         <ul className="container-x flex flex-wrap items-center justify-center gap-2.5 py-6 text-sm text-ink">
-          {["TradingView", `${C.primaryTimeframe} chart`, "New York session", "Invite-only script", "Monthly or lifetime"].map((t) => (<li key={t} className="whitespace-nowrap rounded-full border border-line bg-bg px-4 py-1.5">{t}</li>))}
+          {["TradingView", `${C.primaryTimeframe} chart`, "New York session", "Invite-only script", "Works on TradingView mobile", "Monthly or lifetime"].map((t) => (<li key={t} className="whitespace-nowrap rounded-full border border-line bg-bg px-4 py-1.5">{t}</li>))}
         </ul>
       </section>
 
