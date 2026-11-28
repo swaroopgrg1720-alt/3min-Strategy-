@@ -47,7 +47,6 @@ export const site = {
     { href: "/features", label: "Features" },
     { href: "/markets", label: "Markets" },
     { href: "/performance", label: "Performance" },
-    { href: "/indicator", label: "Indicator" },
     { href: "/pricing", label: "Pricing" },
     { href: "/documentation", label: "Documentation" },
     { href: "/faq", label: "FAQ" },

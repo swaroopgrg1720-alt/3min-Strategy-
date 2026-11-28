@@ -7,8 +7,22 @@ import { site } from "@/lib/config/site";
 import { Logo } from "@/components/ui/Logo";
 import { IconClose, IconMenu } from "@/components/ui/Icons";
 
+const INDICATOR_NAV = [
+  { href: "/indicator", label: "Overview" },
+  { href: "/indicator#how", label: "How it works" },
+  { href: "/indicator#pricing", label: "Pricing" },
+  { href: "/indicator#faq", label: "FAQ" },
+];
+
 export function Navbar() {
   const pathname = usePathname();
+  const isInd = pathname.startsWith("/indicator");
+  const nav = isInd ? INDICATOR_NAV : site.nav;
+  const cta = isInd ? { href: "/indicator#pricing", label: "Get the indicator" } : { href: "/pricing", label: "Get 3MIN SCALP" };
+  const tabs = [
+    { href: "/", label: "MT5 EA", on: !isInd },
+    { href: "/indicator", label: "TradingView Indicator", on: isInd },
+  ];
   const [open, setOpen] = useState(false);
 
   useEffect(() => setOpen(false), [pathname]);
@@ -28,14 +42,22 @@ export function Navbar() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:rounded focus:bg-accent focus:px-3 focus:py-1 focus:text-bg">
         Skip to content
       </a>
+      <div role="tablist" aria-label="Choose product" className="flex border-b border-line/70 bg-bg2">
+        {tabs.map((t) => (
+          <Link key={t.href} href={t.href} role="tab" aria-selected={t.on}
+            className={`flex h-11 flex-1 items-center justify-center border-t-2 px-2 text-sm font-semibold transition sm:max-w-[16rem] sm:flex-none sm:px-8 ${t.on ? "border-accent bg-bg text-accent" : "border-transparent text-muted hover:text-ink"}`}>
+            {t.label}
+          </Link>
+        ))}
+      </div>
       <div className="container-x flex h-16 items-center justify-between">
         <Link href="/" aria-label="3MIN SCALP — home">
           <Logo />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-          {site.nav.map((n) => {
-            const active = n.href === "/" ? pathname === "/" : pathname.startsWith(n.href);
+          {nav.map((n) => {
+            const active = n.href === "/" ? pathname === "/" : n.href.includes("#") ? false : pathname.startsWith(n.href);
             return (
               <Link
                 key={n.href}
@@ -53,8 +75,8 @@ export function Navbar() {
           <Link href="/login" className="btn btn-ghost hidden !py-2 sm:inline-flex">
             Login
           </Link>
-          <Link href="/pricing" className="btn btn-primary hidden !py-2 sm:inline-flex">
-            Get 3MIN SCALP
+          <Link href={cta.href} className="btn btn-primary hidden !py-2 sm:inline-flex">
+            {cta.label}
           </Link>
           <button
             type="button"
@@ -71,9 +93,9 @@ export function Navbar() {
 
     </header>
       {open && (
-        <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-40 bg-bg lg:hidden">
+        <div id="mobile-menu" className="fixed inset-x-0 top-[108px] bottom-0 z-40 bg-bg lg:hidden">
           <nav aria-label="Mobile" className="container-x flex h-full flex-col gap-1 overflow-y-auto py-6">
-            {site.nav.map((n) => (
+            {nav.map((n) => (
               <Link key={n.href} href={n.href} className="rounded-2xl px-4 py-4 font-display text-xl font-semibold text-ink active:bg-forest/40 hover:bg-forest/30">
                 {n.label}
               </Link>
@@ -81,8 +103,8 @@ export function Navbar() {
             <Link href="/login" className="btn btn-ghost mt-4 !py-4 text-base">
               Login
             </Link>
-            <Link href="/pricing" className="btn btn-primary !py-4 text-base">
-              Get 3MIN SCALP
+            <Link href={cta.href} className="btn btn-primary !py-4 text-base">
+              {cta.label}
             </Link>
           </nav>
         </div>
