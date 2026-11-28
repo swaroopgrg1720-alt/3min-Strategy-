@@ -23,10 +23,12 @@ const steps = [
   ["You make the decisions", "You are responsible for your entries, exits, position size and risk."],
 ];
 const faqs: [string, string][] = [
-  ["What is the TradingView indicator?", `${indicator.name} is an invite-only TradingView script built for the ${C.primaryTimeframe} chart and the New York session. It is an analysis tool. It does not place trades for you.`],
+  ["What is the TradingView indicator?", `${indicator.name} is an invite-only TradingView script built for the ${C.primaryTimeframe} chart and the New York session. It combines trend analysis, technical analysis and breakout conditions to show potential buy and sell signals with entry, stop loss and take profit levels. It is an analysis tool and does not place trades for you.`],
   ["How do I get access after paying?", "Once your payment is confirmed we add the TradingView username you entered at checkout. This is done by hand. Your dashboard changes from Pending to Active when it is ready."],
   ["Do I need a TradingView account?", "Yes. Access is given to a TradingView username, so you need an account. Check TradingView's own plans for what your plan allows."],
   ["Does it place trades automatically?", "No. It is an indicator on a chart. You decide and place every trade yourself."],
+  ["Does it show buy and sell signals?", "Yes. It shows directional buy and sell signals on the chart, and supported setups can display entry, stop loss and take profit levels. Signals are potential setups, not guarantees."],
+  ["Which markets does it support?", "It can be used across many instruments and asset classes. It is primarily designed and developed with XAU/USD (Gold) in mind."],
   ["Is there a monthly plan and a lifetime plan?", "Yes. Monthly access lasts 30 days per month bought. Lifetime is a one-time payment for the current indicator."],
   ["Does my subscription renew by itself?", "No. Payments are made in crypto, so nothing is charged automatically. You renew from your dashboard when you want more time."],
   ["What happens when my access expires?", "Your access is removed from the TradingView script. Renew from your dashboard and the time is added to the same username."],
@@ -49,9 +51,9 @@ export default function Page() {
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_30%_0%,rgba(29,70,54,0.6),transparent)]" aria-hidden="true" />
         <div className="container-x grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2 lg:py-28">
           <div data-reveal>
-            <p className="eyebrow">Works on TradingView</p>
+            <p className="eyebrow">Trend. Analysis. Breakout. Execution.</p>
             <h1 className="mt-5 text-[2.4rem] font-bold leading-[1.05] sm:text-5xl lg:text-6xl">{indicator.name}</h1>
-            <p className="mt-5 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">A TradingView indicator for short-term market analysis, built for the {C.primaryTimeframe} chart and the New York session.</p>
+            <p className="mt-5 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">The 3 MIN SCALP TradingView indicator combines trend analysis, technical analysis and breakout conditions to identify potential trading opportunities directly on your chart.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="#pricing" className="btn btn-primary">Get the indicator</Link>
               <Link href="#how" className="btn btn-ghost">View how it works</Link>
@@ -81,7 +83,7 @@ export default function Page() {
 
       {C.features.length > 0 && (
         <section id="features" className="section scroll-mt-32"><div className="container-x">
-          <SectionHeading title="Features" />
+          <SectionHeading title="Key features" text="Built for fast market analysis: the most important information in one view, so you can see potential direction, breakout opportunities and predefined trade levels without calculating every level by hand." />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{C.features.map((f) => (<article key={f.title} className="card transition hover:-translate-y-0.5 hover:border-accent/40"><h3 className="text-lg font-semibold">{f.title}</h3><p className="mt-2 text-sm text-muted">{f.text}</p></article>))}</div>
         </div></section>
       )}
@@ -91,7 +93,7 @@ export default function Page() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <article className="card"><p className="text-sm text-muted">Primary timeframe</p><p className="mt-2 text-3xl font-bold text-accent">{C.primaryTimeframe}</p><p className="mt-2 text-sm text-muted">The indicator is built around this chart, with the New York session in mind.</p></article>
           <article className="card"><p className="text-sm text-muted">Supported markets</p>
-            {C.markets.length > 0 ? <ul className="mt-3 flex flex-wrap gap-2">{C.markets.map((m) => <li key={m} className="rounded-full border border-line px-3 py-1 text-sm">{m}</li>)}</ul> : <p className="mt-2 text-sm text-muted">Ask us in the live chat which symbols it suits before you buy. Check TradingView compatibility for your symbol too.</p>}
+            {C.markets.length > 0 ? <><ul className="mt-3 flex flex-wrap gap-2">{C.markets.map((m) => <li key={m} className="rounded-full border border-line px-3 py-1 text-sm">{m}</li>)}</ul><p className="mt-3 text-sm text-muted">Works across many instruments and asset classes. Check the indicator and TradingView compatibility for your symbol before you buy.</p></> : <p className="mt-2 text-sm text-muted">Works across many instruments and asset classes. Check the indicator and TradingView compatibility for your symbol before you buy.</p>}
           </article>
         </div>
       </div></section>
