@@ -26,11 +26,11 @@ export function PaymentStatus({ orderId, renewal = false, indicator = false }: {
       <p className="text-xs uppercase tracking-wider text-muted">Order <span className="font-mono">{orderId}</span></p>
       {done ? (
         <>
-          <h2 className="mt-3 text-xl font-semibold text-accent">{renewal ? "Renewed! Payment confirmed" : "Thank you for purchasing! Payment confirmed"}</h2>
+          <h2 className="mt-3 text-xl font-semibold text-accent">{renewal ? "Renewed! Payment confirmed" : (indicator ? "Payment successful! Thank you for purchasing" : "Thank you for purchasing! Payment confirmed")}</h2>
           <p className="mt-2 text-sm text-muted">{indicator
             ? (renewal ? "Your indicator access has been extended. Open your dashboard to see the new expiry." : "We will now add your TradingView username to the indicator. You will see the status in your dashboard, where it changes to Active when access is ready.")
             : (renewal ? "Your license has been extended. Open My License and copy your new key, because the key changes with the new expiry date." : "Your license is ready. Sign in with the email you used at checkout to view it.")}</p>
-          <a className="btn btn-primary mt-5" href={indicator ? "/login?next=/dashboard/indicator" : "/login?next=/dashboard/license"}>{indicator ? "Open my indicator" : renewal ? "Open My License" : "Sign in to get your key"}</a>
+          <a className="btn btn-primary mt-5" href={indicator ? "/login?next=/dashboard/indicator" : "/login?next=/dashboard/license"}>{indicator ? "Access indicator" : renewal ? "Open My License" : "Sign in to get your key"}</a>
         </>
       ) : review ? (
         <>

@@ -42,6 +42,7 @@ export function Footer() {
               {site.nav.slice(1).map((n) => (
                 <li key={n.href}><Link className="hover:text-ink" href={n.href}>{n.label}</Link></li>
               ))}
+              <li><Link className="hover:text-ink" href="/indicator">TradingView Indicator</Link></li>
               <li><Link className="hover:text-ink" href="/contact">Contact</Link></li>
               <li><Link className="hover:text-ink" href="/changelog">Changelog</Link></li>
             </ul>

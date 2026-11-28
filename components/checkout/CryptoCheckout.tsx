@@ -20,6 +20,7 @@ export function CryptoCheckout({ initialPlan, initialProduct = "ea", dashboard =
   const [product, setProduct] = useState<ProductId>(renewAccess ? "indicator" : initialProduct === "indicator" && indicatorEnabled ? "indicator" : "ea");
   const ind = product === "indicator";
   const [tv, setTv] = useState("");
+  const [agree, setAgree] = useState(false);
   const [plan, setPlan] = useState<PlanId>(renewing ? "monthly" : initialPlan);
   const [months, setMonths] = useState(1);
   const [email, setEmail] = useState("");
@@ -36,6 +37,7 @@ export function CryptoCheckout({ initialPlan, initialProduct = "ea", dashboard =
     setBusy(true);
     setError("");
     try {
+      if (ind && !agree) throw new Error("Please accept the terms and the refund policy to continue.");
       if (ind && !renewAccess && !isTvUsername(tv.trim().replace(/^@/, ""))) throw new Error("Enter your TradingView username (letters, numbers and underscores, 3 to 30 characters).");
       const who = dashboard ? { from: "dashboard" } : { email };
       const payload = renewAccess ? { product: "indicator", plan: "monthly", months, from: "dashboard", accessId: renewAccess.id }
@@ -128,6 +130,12 @@ export function CryptoCheckout({ initialPlan, initialProduct = "ea", dashboard =
                     className="mt-2 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm" />
                   <p className="mt-1.5 text-xs text-muted">It is the name in your TradingView profile address (tradingview.com/u/<span className="text-ink">username</span>). Access is added to exactly this username, so check it carefully.</p>
                 </div>
+              )}
+              {ind && (
+                <label className="mb-4 flex items-start gap-2.5 text-sm text-muted">
+                  <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-1 h-4 w-4 accent-[#00E59B]" />
+                  <span>I accept the <a className="text-accent underline" href="/terms" target="_blank" rel="noopener noreferrer">terms</a> and the <a className="text-accent underline" href="/refund-policy" target="_blank" rel="noopener noreferrer">refund policy</a>. I understand trading is risky and the indicator does not guarantee profit.</span>
+                </label>
               )}
               {dashboard ? (
                 <p className="text-sm text-muted">{ind ? "This is billed to" : "This creates a new license (one license works on one MT5 account) for"} <span className="text-ink">{accountEmail}</span>. {plan === "monthly" ? "To extend something you already have, use its Renew button instead." : "It never expires."}</p>

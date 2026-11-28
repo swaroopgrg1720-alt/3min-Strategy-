@@ -12,6 +12,7 @@ const INDICATOR_NAV = [
   { href: "/indicator#how", label: "How it works" },
   { href: "/indicator#pricing", label: "Pricing" },
   { href: "/indicator#faq", label: "FAQ" },
+  { href: "/contact", label: "Support" },
 ];
 
 export function Navbar() {
@@ -98,14 +99,14 @@ export function Navbar() {
         <div id="mobile-menu" className="fixed inset-x-0 top-[108px] bottom-0 z-40 bg-bg lg:hidden">
           <nav aria-label="Mobile" className="container-x flex h-full flex-col gap-1 overflow-y-auto py-6">
             {nav.map((n) => (
-              <Link key={n.href} href={n.href} className="rounded-2xl px-4 py-4 font-display text-xl font-semibold text-ink active:bg-forest/40 hover:bg-forest/30">
+              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="rounded-2xl px-4 py-4 font-display text-xl font-semibold text-ink active:bg-forest/40 hover:bg-forest/30">
                 {n.label}
               </Link>
             ))}
-            <Link href="/login" className="btn btn-ghost mt-4 !py-4 text-base">
+            <Link href="/login" onClick={() => setOpen(false)} className="btn btn-ghost mt-4 !py-4 text-base">
               Login
             </Link>
-            <Link href={cta.href} className="btn btn-primary !py-4 text-base">
+            <Link href={cta.href} onClick={() => setOpen(false)} className="btn btn-primary !py-4 text-base">
               {cta.label}
             </Link>
           </nav>
